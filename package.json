@@ -1,0 +1,26 @@
+{
+  "name": "kltn-sqli-detection",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/QuangHa2012/KLTN-SQLi-Detection.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/QuangHa2012/KLTN-SQLi-Detection/issues"
+  },
+  "homepage": "https://github.com/QuangHa2012/KLTN-SQLi-Detection#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
