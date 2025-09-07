@@ -1,0 +1,34 @@
+<div class="container ">
+    <h2>Thêm sản phẩm mới</h2>
+
+    <form method="POST" action="/admin/products/store">
+    <div class="mb-3">
+        <label class="form-label">Tên sản phẩm</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Giá</label>
+        <input type="number" name="price" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Ảnh (URL)</label>
+        <input type="text" name="img" class="form-control">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Số lượng tồn kho</label>
+        <input type="number" name="stock" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Danh mục</label>
+        <input type="text" name="category" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a href="/admin/products" class="btn btn-secondary">Hủy</a>
+    </form>
+
+</div>

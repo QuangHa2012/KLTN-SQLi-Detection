@@ -1,0 +1,32 @@
+<div class="container-fluid mt-4">
+    <h1>Danh sách sản phẩm đã xóa</h1>
+
+    <table class="table">
+    <thead>
+        <tr>
+        <th>Tên</th>
+        <th>Giá</th>
+        <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each products}}
+        <tr>
+        <td>{{this.name}}</td>
+        <td>{{this.price}}</td>
+        <td>
+            <form action="/admin/products/{{this.id}}/restore" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-success">Khôi phục</button>
+            </form>
+
+            <form action="/admin/products/{{this.id}}/delete-permanent" method="POST" style="display:inline;">
+            <button type="submit" class="btn btn-danger">Xóa vĩnh viễn</button>
+            </form>
+        </td>
+        </tr>
+        {{/each}}
+    </tbody>
+    </table>
+
+    <a href="/admin/products" class="btn btn-secondary">Quay lại danh sách</a>
+</div>

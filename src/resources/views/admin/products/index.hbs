@@ -1,0 +1,28 @@
+<div class="container-fluid ">
+    <h2>Quản lý sản phẩm</h2>
+    <a href="/admin/products/create" class="btn btn-primary"><i class="bi bi-plus-square"></i> Thêm sản phẩm</a>
+    <a href="/admin/products/trash" class="btn btn-danger"><i class="bi bi-trash"></i>Sản phẩm đã xóa</a>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th><th>Tên</th><th>Giá</th><th>Kho</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each products}}
+            <tr>
+                <td>{{this.id}}</td>
+                <td>{{this.name}}</td>
+                <td>{{this.price}}</td>
+                <td>{{this.stock}}</td>
+                <td>
+                    <a href="/admin/products/{{this.id}}/edit" class="btn btn-warning btn-sm">Sửa</a>
+                    <form method="POST" action="/admin/products/{{this.id}}/delete" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</div>

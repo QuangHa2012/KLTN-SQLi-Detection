@@ -1,0 +1,31 @@
+
+<div class="products-section container-fluid">
+    <div class="row">
+        {{#each products}}
+        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+            <div class="card card-item"> 
+                <a href="/products/{{this.id}}" class="card-img-link">
+                    <img class="card-img-top" src="{{this.img}}" alt="Card image cap">
+                </a>
+                <div class="card-body">
+                    <a href="/products/{{this.id}}">
+                        <h3 class="card-title">{{this.name}}</h3>
+                    </a>
+                    <p class="card-price">{{formatPrice this.price}}</p>
+                    <div class="btn-container">
+                        <form action="/orders/buy-now" method="POST">
+                            <input type="hidden" name="productId" value="{{this.id}}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-dark btn-buy-item">Mua ngay</button>
+                        </form>
+
+                        <form action="/carts/add/{{this.id}}" method="POST">
+                            <button type="submit" class="btn btn-dark btn-add-card">Thêm vào giỏ</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>

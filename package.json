@@ -1,9 +1,10 @@
 {
   "name": "kltn-sqli-detection",
   "version": "1.0.0",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "nodemon app.js",
+    "sass": "sass src/resources/scss:src/public/css --watch",
+    "start": "nodemon --inspect src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,9 +19,16 @@
   "homepage": "https://github.com/QuangHa2012/KLTN-SQLi-Detection#readme",
   "description": "",
   "dependencies": {
-    "express": "^5.1.0"
+    "@fortawesome/fontawesome-free": "^7.0.0",
+    "bcrypt": "^6.0.0",
+    "connect-mssql-v2": "^6.0.0",
+    "express": "^5.1.0",
+    "express-handlebars": "^8.0.3",
+    "express-session": "^1.18.2",
+    "mssql": "^11.0.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "sass": "^1.91.0"
   }
 }

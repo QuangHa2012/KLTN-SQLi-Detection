@@ -1,0 +1,56 @@
+<header class="header-section scrolled">
+  <nav class="navbar navbar-expand-lg navbar-light">
+  <a class="navbar-brand" href="/">
+    <img src="/img/logo_menu.png" alt=""  class="header-logo d-inline-block align-text-top">    
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse header-navbar" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto header-navbar-list">
+      <li class="nav-item header-navbar-list-item">
+        <a class="nav-link header-navbar-list-item-link" href="/products">shop all </a>
+      </li>
+      <li class="nav-item header-navbar-list-item">
+        <a class="nav-link header-navbar-list-item-link" href="/products/top">tops</a>
+      </li>
+      <li class="nav-item header-navbar-list-item">
+        <a class="nav-link header-navbar-list-item-link" href="/products/bottom">bottoms</a>
+      </li>
+      <li class="nav-item header-navbar-list-item">
+        <a class="nav-link header-navbar-list-item-link" href="/products/outerwears">OUTERWEARS</a>
+      </li> 
+    </ul>
+    <div class=" header-account">
+      {{#if user}}
+        <!-- Khi đã đăng nhập -->
+        <div class="dropdown">
+            <a class="dropdown-toggle d-flex align-items-center" href="#" role="button" id="userMenu"
+              data-toggle="dropdown" aria-expanded="false">
+              <img src="/img/avatar-df.png" alt="avatar" class="avatar">
+              <span class="ml-2 ">{{user.username}}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+              {{#if (eq user.role "admin")}}
+                <li><a class="dropdown-item" href="/admin/products">Sản phẩm của tôi</a></li>
+                <li><a class="dropdown-item" href="/admin/products/create">Thêm sản phẩm</a></li>
+              {{/if}}
+              <div class="dropdown-divider"></div>
+              <li><a class="dropdown-item" href="/accounts/logout">Đăng xuất</a></li>
+            </ul>
+        </div> 
+      {{else}}
+        <!-- Khi chưa đăng nhập -->
+        <a href="/accounts/login" class="header-account-login" >Login</a>/
+        <a href="/accounts/register" class="header-account-register" >Register</a>
+      {{/if}} 
+    </div>
+    <div href="#" class="header-cart" >
+        <i class="bi bi-cart header-cart-icon"></i>
+        <span class="header-cart-notify">(0)</span>   
+    </div>
+  </div>
+</nav>
+</header>
+

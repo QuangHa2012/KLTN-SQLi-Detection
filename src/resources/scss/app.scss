@@ -1,0 +1,500 @@
+@use 'variables' as var;
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var.$font-primary;
+}
+
+/*header section */
+.header-section {
+  position: fixed;   /* cố định */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;     /* nổi lên trên */
+  transition: background-color 0.3s ease; /* mượt khi đổi màu */
+  background-color: #f1f2f4; /* màu nền mặc định */
+}
+
+.header-section.scrolled {
+  background-color: #fff; /* màu khi cuộn */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* thêm bóng nhẹ */
+}
+.header-logo {
+  max-height: 70%;
+  max-width: 150px;
+  height: auto;
+  width: auto; 
+}
+
+.header-navbar-list {
+    text-transform: uppercase;
+    
+}
+.header-navbar-list-item-link {
+    font-size: 14px;
+    font-weight: 550;   
+}
+
+.nav-link:hover {
+    color: rgb(255 255 255) !important;
+}
+
+.header-navbar-list-item-link {
+    position: relative;
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-top: 2px solid #262626;
+        border-bottom: 2px solid #262626;
+        transform: scaleY(2);
+        opacity: 0;
+        transition: .3s;
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #262626;
+        transform: scale(0);
+        opacity: 0;
+        transition: .3s;
+        z-index: -1;
+    }
+    &:hover {
+        color: #fff;
+        &:before {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+        &:after {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+    }
+}
+
+.header-account {
+    margin-right: 8px;
+}
+ 
+.header-account .header-account-login,
+.header-account .header-account-register {
+    display: inline-block;
+    font-size:14px;
+    text-decoration: none;
+    color:#7c7c7d;
+    font-weight: 550;   
+    text-transform: uppercase;
+    position: relative;
+    padding: 8px;
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-top: 2px solid #262626;
+        border-bottom: 2px solid #262626;
+        transform: scaleY(2);
+        opacity: 0;
+        transition: .3s;
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #262626;
+        transform: scale(0);
+        opacity: 0;
+        transition: .3s;
+        z-index: -1;
+    }
+    &:hover {
+        color: #fff;
+        &:before {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+        &:after {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+    }
+}
+
+.header-cart-icon {
+   color:#7c7c7d;
+   font-size: 18px;  
+}
+
+
+.header-cart .header-cart-notify
+{
+  display: inline-block;
+  font-size: 14px;
+  text-decoration: none;
+  color:#7c7c7d;
+  font-weight: 550;   
+  text-transform: uppercase;
+}
+
+.header-cart {
+    padding: 8px;
+    position: relative;
+    &:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border-top: 2px solid #262626;
+        border-bottom: 2px solid #262626;
+        transform: scaleY(2);
+        opacity: 0;
+        transition: .3s;
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #262626;
+        transform: scale(0);
+        opacity: 0;
+        transition: .3s;
+        z-index: -1;
+    }
+    &:hover {
+        color: #fff;
+        &:before {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+        &:after {
+          transform: scaleY(1);
+          opacity: 1;
+        }
+        .header-cart-icon,
+        .header-cart-notify {
+            color: #fff;
+        }
+    }
+}
+
+.avatar {
+    height: 28px;
+    width: 28px;
+    border-radius: 50%;
+}
+
+/*header section */
+
+/*product section*/
+.products-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    //margin: 50px 0;
+    //margin-top: 66px;
+    //gap: 20px; /* Tạo khoảng cách giữa các sản phẩm */
+    z-index: 1;
+    
+}
+
+
+.card-item {
+    border: none;
+    min-height: 520px;
+    //max-width: 250px;
+    flex: 1 1 calc(25% - 20px); /* Chia thành 4 cột, trừ khoảng cách */
+}
+
+
+
+.card-title {
+    display: inline-block;
+    color: #000;
+    width: 100%;
+    text-align: center;
+    font-size: 16px;
+    white-space: nowrap;    /* Không cho xuống dòng */
+    overflow: hidden;       /* Ẩn phần vượt quá */
+    text-overflow: ellipsis; /* Hiển thị dấu "..." khi bị cắt */
+    //max-width: 248px;       /* Giới hạn độ rộng tối đa */
+}
+
+.btn-container {
+    display: flex;
+    gap: 10px; /* Khoảng cách giữa các nút */
+    justify-content: center; /* Căn giữa các nút */
+}
+
+.btn-container form {
+    margin: 0;
+    padding: 0;
+    display: flex; /* Đảm bảo form cũng là flex item */
+    flex: 1; /* Chia sẻ không gian như nút kia */
+}
+
+.btn-container form button {
+    flex: 1; /* Đảm bảo nút bên trong form cũng chia sẻ không gian */
+}
+
+.btn-container .btn-buy-item,
+.btn-container .btn-add-card {
+    flex-grow: 1;
+    flex-basis: 0;
+    border-radius: 0;
+    border: 1px solid #000;
+    padding: 10px 20px; /* Thêm padding giống nhau cho cả hai nút */
+    text-align: center; /* Căn giữa chữ trong nút (tùy chọn) */
+}
+
+.btn-buy-item:hover,
+.btn-add-card:hover {
+    background-color: #fff;
+    color: #000;
+}
+
+.card-price {
+    text-align: center;
+}
+/*product section*/
+
+/*footer section*/
+.footer-section {
+    position: relative;;    
+}
+
+
+
+.footer-content {
+    margin: 50px 15px 0 15px;
+}
+
+.footer-list {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+.footer__heading {
+    font-size: 16px;
+    //letter-spacing: 0.;
+    margin: 0 0 20px;
+    position: relative;
+    line-height: 22px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.footer-item__link {
+    text-decoration: none;
+    display: inline-block;
+    font-size: 12px;
+    color: #737373;
+}
+
+.footer__bottom {
+    background:#f5f5f5;
+    padding: 10px 0;
+    width: 100%;
+}
+
+.copyright {
+    text-align: center;
+    margin: 0;
+}
+
+
+.text-animation {
+    display: inline-flex;
+    justify-content: space-around;
+    align-items: center;
+    //flex-direction: row;
+    width: 100%;
+}
+
+
+.footer-wrapper-animation {
+    padding-bottom: 0px !important;
+    font-family: 'Oswald' !important;
+    width: 100%;
+    height: auto !important;
+    overflow: hidden;
+    text-transform: uppercase;
+    -webkit-text-stroke-width: 1px;
+    -webkit-text-fill-color: hsl(0deg 0% 100%);
+    animation: footer-slide 10s linear infinite;
+    white-space: nowrap;
+    gap: 50px;
+}
+
+
+@keyframes footer-slide {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+/*footer section*/
+
+/* login section */
+.auth-form {
+    max-width: 650px;
+    
+    margin: 0 auto;
+}
+.auth-form__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    padding:0 12px;
+    margin-top:12px;
+}
+.auth-form__heading {
+    font-size: 32px;
+    font-weight: 400;
+    color:var(--black-color);
+}
+
+.auth-form__switch-btn {
+    color: #000;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.auth-form__form {
+    margin-top: 16px;
+}
+
+
+
+.auth-form__input {
+    width: 100%;
+    padding: 0 12px;
+    margin-top: 16px;
+    font-size: 1.4rem;
+    height: 40px;
+    border: 1px solid #ededed;
+    border-radius: 2px;
+    outline: none;
+}
+
+.auth-form__input:focus {
+    border-color: #888;
+}
+
+.auth-form__aside {
+    font-weight: 500;
+    margin-top: 20px;
+}
+
+.auth-form__policy-text {
+    font-size: 16px;
+    line-height: 28px;
+    text-align: center;
+    padding: 0 12px;
+}
+
+.auth-form__text-link {
+    
+    text-decoration: none;
+}
+
+.auth-form__control {
+    margin-top: 80px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+.auth-form__control-back {
+    margin-right: 8px;
+}
+
+.auth-form__socials {   
+    padding: 12px 36px;
+    display: flex;
+    justify-content: space-between;
+    background-color: #f5f5f5;
+    margin-top: 24px;
+    
+}
+
+
+.auth-form__socials-icon {
+    font-size:1.8rem;
+}
+
+.auth-form__socials--facebook {
+    color:#fff;
+    background-color: #3A5A98;
+}
+.auth-form__socials--google {
+    color: #666;
+    background-color: #fff;
+}
+
+.auth-form__social-title {
+    margin:0 36px;
+}
+
+.auth-form__help {
+    display: flex;
+    justify-content: flex-end;
+    
+}
+
+.auth-form__help-link {
+    text-decoration: none;
+    font-size: 1.4rem;
+    color:#939393;
+}
+
+.auth-form__help-separate {
+    display: block;
+    border-left: 1px solid #eaeaea;
+    height: 20px;
+    margin: 0 16px;
+    
+}
+
+.auth-form__help-forget {
+    color:#000;
+}
+
+/* login section */
+
+/* body content */
+.body-content {
+    margin-top: 80px; /* Đảm bảo nội dung không bị che khuất bởi header cố định */
+    min-height: calc(100vh - 160px); /* Chiều cao tối thiểu để footer luôn ở dưới cùng */
+    padding: 20px;
+    background-color: #ffffff; /* Màu nền cho phần nội dung */
+}
+/* body content */
+
