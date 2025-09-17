@@ -56,13 +56,13 @@ class PaymentController {
             }
 
             // 5. Chuẩn bị dữ liệu gửi MoMo
-            const partnerCode = "MOMO";
-            const accessKey = "F8BBA842ECF85";
-            const secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+            const partnerCode = process.env.MOMO_PARTNER_CODE || "MOMO";
+            const accessKey = process.env.MOMO_ACCESS_KEY || "F8BBA842ECF85";
+            const secretKey = process.env.MOMO_SECRET_KEY || "K951B6PE1waDMi640xX08PD3vg6EkVlz";
             const requestId = orderId.toString();
             const orderInfo = `Thanh toán đơn hàng #${orderId}`;
-            const redirectUrl = "http://localhost:3000/payment/success";
-            const ipnUrl = "http://localhost:3000/payment/momo-notify";
+            const redirectUrl = process.env.MOMO_REDIRECT_URL || "http://localhost:3000/payment/success";
+            const ipnUrl = process.env.MOMO_NOTIFY_URL || "http://localhost:3000/payment/momo-notify";
             const amount = total.toString();
             const extraData = "";
 

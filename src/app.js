@@ -1,10 +1,12 @@
+require('dotenv').config();
+
 const express = require('express');
 const { engine } = require('express-handlebars');
 const session = require('express-session');
 const cartCount = require('./app/middleware/cartCount');
 const path = require('path');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 
 const route = require('./routes/index');//import route()
@@ -23,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // session
 app.use(session({
-    secret: 'secret_key',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     rolling: true,  // reset lại thời gian cookie mỗi lần request

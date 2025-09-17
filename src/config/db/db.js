@@ -1,17 +1,19 @@
 const sql = require('mssql');
+require('dotenv').config(); // load biến môi trường từ file .env
 
 const config = {
-    user: 'sa',
-    password: 'abc@123',
-    server: 'localhost',          // hoặc DESKTOP-HV20LOM\SQLEXPRESS
-    database: 'mssql',           // database
+    user: process.env.DB_USER || 'sa',
+    password: process.env.DB_PASSWORD || 'abc@123',
+    server: process.env.DB_SERVER || 'localhost',          // hoặc DESKTOP-HV20LOM\SQLEXPRESS
+    database: process.env.DB_NAME || 'mssql',           // database
     options: {
         encrypt: false,
         trustServerCertificate: true,
         
 
     },
-    instanceName: "QUANGHA"   //named instance
+    port: parseInt(process.env.DB_PORT, 10),
+    instanceName: process.env.DB_INSTANCE || "QUANGHA"   //named instance
 };
 
 async function connectDB() {
