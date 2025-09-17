@@ -1,6 +1,7 @@
 const express = require('express');
 const { engine } = require('express-handlebars');
 const session = require('express-session');
+const cartCount = require('./app/middleware/cartCount');
 const path = require('path');
 const app = express();
 const port = 3000;
@@ -18,6 +19,8 @@ app.use(express.static(path.join(__dirname,'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+
 // session
 app.use(session({
     secret: 'secret_key',
@@ -33,6 +36,9 @@ app.use((req, res, next) => {
     next();
 });
 
+//count cart items
+app.use(cartCount);
+
 //template engine
 app.engine('hbs', engine({ 
   extname: '.hbs',
@@ -42,6 +48,10 @@ app.engine('hbs', engine({
         return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     },
     eq: (a, b) => a === b,
+    multiply: (a, b) => a * b,
+    calcTotal: (items) => {
+      return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    }
   }
 }));
 app.set('view engine', 'hbs');

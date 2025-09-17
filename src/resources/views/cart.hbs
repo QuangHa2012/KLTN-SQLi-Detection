@@ -1,0 +1,57 @@
+<div class="container ">
+    <h2>Giỏ hàng của bạn</h2>
+    {{#if items.length}}
+    <form action="/carts/clear" method="POST" class="mb-3">
+        <button type="submit" class="btn btn-warning">Xóa tất cả</button>
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ảnh</th>
+                <th>Sản phẩm</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+                <th>Tổng</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each items}}
+            <tr>
+                <td><img src="{{this.img}}" width="80"></td>
+                <td>{{this.name}}</td>
+                <td>{{formatPrice this.price}}</td>
+                <td>
+                    <form action="/carts/update/{{this.cartItemId}}" method="POST" class="d-flex">
+                        <input type="number" name="quantity" value="{{this.quantity}}" min="0" class="form-control w-50">
+                        <button type="submit" class="btn btn-primary btn-sm ml-2">Cập nhật</button>
+                    </form>
+                </td>
+                <td>{{formatPrice (multiply this.price this.quantity)}}</td>
+                <td>
+                    <form action="/carts/remove/{{this.cartItemId}}" method="POST">
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+
+    <div class="d-flex justify-content-between align-items-center">
+        <h4>
+            Tổng tiền: 
+            {{formatPrice (calcTotal items)}}
+        </h4>
+        <form action="/payment/momo" method="POST">
+            <button type="submit" class="btn btn-success">Thanh toán</button>
+        </form>
+    </div>
+    
+    {{else}}
+    <p>Giỏ hàng trống</p>
+    {{/if}}
+</div>
+
+

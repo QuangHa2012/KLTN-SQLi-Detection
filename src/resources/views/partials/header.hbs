@@ -46,10 +46,10 @@
         <a href="/accounts/register" class="header-account-register" >Register</a>
       {{/if}} 
     </div>
-    <div href="#" class="header-cart" >
+    <a href="/carts/" class="header-cart" >
         <i class="bi bi-cart header-cart-icon"></i>
-        <span class="header-cart-notify">(0)</span>   
-    </div>
+        <span class="header-cart-notify">({{cartCount}})</span>   
+    </a>
   </div>
 </nav>
 </header>

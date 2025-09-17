@@ -20,8 +20,10 @@
   "description": "",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^7.0.0",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
     "connect-mssql-v2": "^6.0.0",
+    "crypto": "^1.0.1",
     "express": "^5.1.0",
     "express-handlebars": "^8.0.3",
     "express-session": "^1.18.2",
