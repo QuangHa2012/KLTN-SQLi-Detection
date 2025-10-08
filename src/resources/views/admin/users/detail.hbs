@@ -1,0 +1,76 @@
+<div class="container mt-4">
+    <a href="/admin/users" class="btn btn-secondary mb-3">← Quay lại danh sách </a>
+
+    <h2>Thông tin User</h2>
+    <ul>
+        <li><strong>ID:</strong> {{user.id}}</li>
+        <li><strong>Username:</strong> {{user.username}}</li>
+        <li><strong>Role:</strong> {{user.role}}</li>
+        <li><strong>Ngày tạo:</strong> {{formatDate user.createdAt}}</li>
+    </ul>
+
+    {{!-- Giỏ hàng --}}
+    {{#if cart}}
+    <h3>Giỏ hàng (ID: {{cart.id}})</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Tên sản phẩm</th>
+                <th>Ảnh</th>
+                <th>Giá</th>
+                <th>Số lượng</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each cartItems}}
+            <tr>
+                <td>{{this.name}}</td>
+                <td><img src="{{this.img}}" alt="{{this.name}}" width="60"></td>
+                <td>{{this.price}}</td>
+                <td>{{this.quantity}}</td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+    {{else}}
+    <p>User này chưa có giỏ hàng.</p>
+    {{/if}}
+
+    {{!-- Lịch sử đơn hàng --}}
+    <h3 class="mt-4">Lịch sử đơn hàng</h3>
+    {{#if orders.length}}
+        {{#each orders}}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>Đơn #{{this.id}}</strong> - Tổng: {{formatPrice this.total}} - 
+                Trạng thái: <span class="badge badge-info">{{orderStatus this.status}}</span> - 
+                Ngày đặt: {{formatDate this.createdAt}}
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Ảnh</th>
+                            <th>Giá</th>
+                            <th>Số lượng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each this.items}}
+                        <tr>
+                            <td>{{this.name}}</td>
+                            <td><img src="{{this.img}}" alt="{{this.name}}" width="60"></td>
+                            <td>{{this.price}}</td>
+                            <td>{{this.quantity}}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{/each}}
+    {{else}}
+        <p>User này chưa có đơn hàng nào.</p>
+    {{/if}}
+</div>

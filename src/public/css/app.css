@@ -274,6 +274,52 @@
   text-align: center;
 }
 
+.row-products {
+  width: 100%;
+}
+
+/* Search Bar */
+.search-bar {
+  position: relative;
+  max-width: 600px;
+  width: 100% !important;
+  margin: 0 auto 30px;
+}
+
+.search-input {
+  width: 100%;
+  border-radius: 50px;
+  padding: 12px 45px 12px 20px; /* chừa chỗ cho icon bên phải */
+  border: 1px solid #ddd;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.search-input:focus {
+  border-color: #000;
+  box-shadow: 0px 0px 6px rgba(0, 123, 255, 0.2);
+  outline: none;
+}
+
+.btn-search {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #000;
+  transition: 0.2s;
+  white-space: nowrap; /* tránh text xuống dòng */
+}
+
+.btn-search:hover {
+  color: #0056b3;
+}
+
+/*search bar */
 /*product section*/
 /*footer section*/
 .footer-section {
@@ -474,5 +520,93 @@
 }
 
 /* body content */
+/*product detail*/
+.product-detail-img-block {
+  padding: 30px;
+}
+
+.product-detail-img-block .product-detail-img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  max-width: 100%; /* đảm bảo không vượt quá col-4 */
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+.product-detail-btn-container {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px; /* Khoảng cách giữa các nút */
+  justify-content: center; /* Căn giữa các nút */
+}
+
+.product-detail-btn-container .btn-buy-item,
+.product-detail-btn-container .btn-add-card {
+  flex-grow: 1;
+  flex-basis: 0;
+  width: 100%;
+  border-radius: 0;
+  border: 1px solid #000;
+  padding: 10px 20px; /* Thêm padding giống nhau cho cả hai nút */
+  text-align: center; /* Căn giữa chữ trong nút (tùy chọn) */
+}
+
+.product-detail-view-side,
+.product-detail-info {
+  padding: 80px 70px;
+}
+
+.product-detail-info-des {
+  white-space: pre-line;
+  text-align: justify;
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(1); /* đổi icon thành màu đen */
+  opacity: 0.2;
+}
+
+/*product detail*/
+/*pagination */
+.pagination .page-link {
+  color: #888;
+  border: 1px solid #888;
+}
+
+.pagination .page-link:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+.pagination .active .page-link {
+  background-color: #888 !important;
+  border-color: #000 !important;
+  color: #fff !important;
+}
+
+/*pagination */
+/* 🔽  mobile */
+@media (min-width: 576px) {
+  .search-bar {
+    max-width: 70%;
+  }
+}
+/*   mobile */
+/* 🔽  tablet */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .search-bar {
+    max-width: 90%;
+  }
+}
+/*  tablet */
+/* 📱 Desktop */
+@media (min-width: 992px) {
+  .search-bar {
+    max-width: 600px;
+  }
+}
+/* Desktop */
 
 /*# sourceMappingURL=app.css.map */

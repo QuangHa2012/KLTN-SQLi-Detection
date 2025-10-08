@@ -50,10 +50,33 @@ app.engine('hbs', engine({
         return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     },
     eq: (a, b) => a === b,
+    or: (a, b) => a || b,
+    gt: (a, b) => a > b,
+    lt: (a, b) => a < b,
+    add: (a, b) => a + b,
+    sub: (a, b) => a - b,
     multiply: (a, b) => a * b,
     calcTotal: (items) => {
       return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    }
+    },
+    formatDate: (date) => new Date(date).toLocaleString("vi-VN"),
+    range: (from, to) => {
+      let arr = [];
+      for (let i = from; i <= to; i++) arr.push(i);
+      return arr;
+    },
+    orderStatus: function(status) {
+      switch (status) {
+        case 'pending': return "Đang xử lý";
+        case 'paid': return "Đã thanh toán";
+        case 'failed': return "Thanh toán thất bại";
+        case 'cancelled': return "Đã hủy";
+        default: return status;
+      }
+    },
+    ifIndexZero: function(index) {
+        return index === 0 ? "active" : "";
+    },
   }
 }));
 app.set('view engine', 'hbs');

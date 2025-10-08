@@ -18,6 +18,12 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Ảnh phụ (URL, cách nhau dấu phẩy)</label>
+        <input type="text" name="extraImages" class="form-control" 
+            value="{{#each product.images}}{{this.img}}{{#unless @last}},{{/unless}}{{/each}}">
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Số lượng tồn kho</label>
         <input type="number" name="stock" class="form-control" value="{{product.stock}}" required>
     </div>
@@ -25,6 +31,11 @@
     <div class="mb-3">
         <label class="form-label">Danh mục</label>
         <input type="text" name="category" class="form-control" value="{{product.category}}">
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Mô tả sản phẩm</label>
+        <textarea name="des" class="form-control" rows="4">{{product.des}}</textarea>
     </div>
 
     <button type="submit" class="btn btn-primary">Cập nhật</button>

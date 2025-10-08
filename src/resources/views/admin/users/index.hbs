@@ -1,0 +1,77 @@
+<div class="container mt-4">
+    <h2>Quản lý người dùng</h2>
+
+    <!-- Form tìm kiếm & lọc -->
+    <form method="GET" action="/admin/users" class="form-inline mb-3">
+        <input type="text" name="username" class="form-control mr-2" placeholder="Tìm theo username"
+               value="{{query.username}}">
+        
+        <select name="role" class="form-control mr-2">
+            <option value="all" {{#if (eq query.role "all")}}selected{{/if}}>Tất cả</option>
+            <option value="user" {{#if (eq query.role "user")}}selected{{/if}}>User</option>
+            <option value="admin" {{#if (eq query.role "admin")}}selected{{/if}}>Admin</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">Lọc</button>
+    </form>
+
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên đăng nhập</th>
+                <th>Quyền</th>
+                <th>Chi tiết</th>
+                <th>Xóa tài khoản</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each users}}
+            <tr>
+                <td>{{this.id}}</td>
+                <td>{{this.username}}</td>
+                <td>
+                    <form action="/admin/users/{{this.id}}/role" method="POST" class="form-inline">
+                        <select name="role" class="form-control form-control-sm mr-2">
+                            <option value="user" {{#if (eq this.role "user")}}selected{{/if}}>User</option>
+                            <option value="admin" {{#if (eq this.role "admin")}}selected{{/if}}>Admin</option>
+                        </select>
+                        <button type="submit" class="btn btn-primary btn-sm">Cập nhật</button>
+                    </form>
+                </td>
+                <td>
+                    <a href="/admin/users/{{this.id}}" class="btn btn-info btn-sm">Xem chi tiết</a>
+                </td>
+                <td>
+                    <form action="/admin/users/{{this.id}}/delete" method="POST" onsubmit="return confirm('Xóa user này?')">
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+
+    <!-- Phân trang -->
+    <nav aria-label="User pagination">
+        <ul class="pagination justify-content-center">
+            {{#if (gt currentPage 1)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/users?page={{subtract currentPage 1}}">Previous</a>
+            </li>
+            {{/if}}
+
+            {{#each (range 1 totalPages)}}
+            <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                <a class="page-link" href="/admin/users?page={{this}}">{{this}}</a>
+            </li>
+            {{/each}}
+
+            {{#if (lt currentPage totalPages)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/users?page={{add currentPage 1}}">Next</a>
+            </li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>

@@ -146,12 +146,19 @@ class PaymentController {
                 }
 
                 // 3. Xóa giỏ hàng (clear luôn)
-                await pool.request()
-                    .input("userId", sql.Int, req.session.user.id)
-                    .query(`
-                        DELETE FROM CartItems 
-                        WHERE cart_id IN (SELECT id FROM Carts WHERE user_id=@userId)
-                    `);
+                const orderUser = await pool.request()
+                    .input("id", sql.Int, dbOrderId)
+                    .query(`SELECT user_id FROM Orders WHERE id=@id`);
+
+                if (orderUser.recordset.length > 0) {
+                    const userId = orderUser.recordset[0].user_id;
+                    await pool.request()
+                        .input("userId", sql.Int, userId)
+                        .query(`
+                            DELETE FROM CartItems 
+                            WHERE cart_id IN (SELECT id FROM Carts WHERE user_id=@userId)
+                        `);
+                }
 
             } else { //  Thanh toán thất bại
                 await pool.request()
@@ -166,15 +173,122 @@ class PaymentController {
         }
     }
 
+    async buyNow(req, res) {
+        try {
+            const userId = req.session.user.id;
+            const { productId, quantity } = req.body;
+            const pool = await connectDB();
+
+            // 1. Lấy thông tin sản phẩm
+            const productResult = await pool.request()
+                .input("id", sql.Int, productId)
+                .query(`SELECT id, name, price FROM Products WHERE id=@id`);
+
+            if (productResult.recordset.length === 0) {
+                return res.status(400).send("Sản phẩm không tồn tại");
+            }
+
+            const product = productResult.recordset[0];
+            const total = product.price * quantity;
+
+            // 2. Tạo order pending
+            let orderResult = await pool.request()
+                .input("userId", sql.Int, userId)
+                .input("total", sql.Decimal(18, 2), total)
+                .query(`
+                    INSERT INTO Orders (user_id, total, status) 
+                    OUTPUT INSERTED.id
+                    VALUES (@userId, @total, 'pending')
+                `);
+
+            let orderId = orderResult.recordset[0].id;
+
+            // 3. Thêm vào OrderItems
+            await pool.request()
+                .input("order_id", sql.Int, orderId)
+                .input("product_id", sql.Int, product.id)
+                .input("quantity", sql.Int, quantity)
+                .input("price", sql.Decimal(18, 2), product.price)
+                .query(`
+                    INSERT INTO OrderItems (order_id, product_id, quantity, price)
+                    VALUES (@order_id, @product_id, @quantity, @price)
+                `);
+
+            // 4. Chuẩn bị dữ liệu MoMo
+            const partnerCode = process.env.MOMO_PARTNER_CODE || "MOMO";
+            const accessKey = process.env.MOMO_ACCESS_KEY || "F8BBA842ECF85";
+            const secretKey = process.env.MOMO_SECRET_KEY || "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+            const requestId = orderId.toString();
+            const orderInfo = `Mua ngay sản phẩm #${productId}`;
+            const redirectUrl = process.env.MOMO_REDIRECT_URL || "http://localhost:3000/payment/success";
+            const ipnUrl = process.env.MOMO_NOTIFY_URL || "http://localhost:3000/payment/momo-notify";
+            const amount = total.toString();
+            const extraData = "";
+
+            const momoOrderId = orderId + "_" + Date.now();
+
+            const rawSignature =
+                `accessKey=${accessKey}&amount=${amount}&extraData=${extraData}&ipnUrl=${ipnUrl}` +
+                `&orderId=${momoOrderId}&orderInfo=${orderInfo}&partnerCode=${partnerCode}` +
+                `&redirectUrl=${redirectUrl}&requestId=${requestId}&requestType=captureWallet`;
+
+            const signature = crypto.createHmac("sha256", secretKey)
+                .update(rawSignature)
+                .digest("hex");
+
+            const requestBody = {
+                partnerCode,
+                accessKey,
+                requestId,
+                amount,
+                orderId: momoOrderId,
+                orderInfo,
+                redirectUrl,
+                ipnUrl,
+                extraData,
+                requestType: "captureWallet",
+                signature,
+                lang: "vi"
+            };
+
+            // 5. Gửi request đến MoMo
+            const response = await axios.post(
+                "https://test-payment.momo.vn/v2/gateway/api/create",
+                requestBody
+            );
+
+            return res.redirect(response.data.payUrl);
+
+        } catch (err) {
+            console.error("===== BuyNow Error =====");
+            if (err.response) {
+                console.error(err.response.data);
+            } else {
+                console.error(err.message);
+            }
+            res.status(500).send("Có lỗi xảy ra khi mua ngay");
+        }
+    }
+
+
     async success(req, res) {
-        // const orderId = req.query.orderId; // nếu bạn truyền từ redirectUrl
-        // if (orderId) {
-        //     const pool = await connectDB();
-        //     await pool.request()
-        //         .input("id", sql.Int, orderId)
-        //         .query(`UPDATE Orders SET status='paid' WHERE id=@id`);
-        // }
-        res.render("payment/success");
+        let orderId = req.query.orderId;
+
+        if (orderId) {
+            // orderId kiểu "12_1694958237456" -> tách ra 12
+            orderId = parseInt(orderId.toString().split("_")[0]);
+        }
+
+        let order = null;
+        if (orderId && !isNaN(orderId)) {
+            const pool = await connectDB();
+            const result = await pool.request()
+                .input("id", sql.Int, orderId)
+                .query("SELECT * FROM Orders WHERE id=@id");
+            order = result.recordset[0];
+        }
+
+        res.render("payment/success", { order });
     }
 
     fail(req, res) {

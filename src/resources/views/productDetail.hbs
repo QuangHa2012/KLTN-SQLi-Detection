@@ -1,0 +1,51 @@
+<div class="container-fluid product-detail">
+    <div class="row">
+        <!-- Cột thông tin mô tả -->
+        <div class="product-detail-info col-lg-4 col-12 order-lg-1 order-3">
+            <h2 class="product-detail-info-title">Thông tin</h2>
+            <p class="product-detail-info-des">{{product.des}}</p>
+        </div>
+
+        <!-- Cột hình ảnh sản phẩm -->
+        <div class="product-detail-img-block col-lg-4 col-12 order-lg-2  order-1">
+            <div id="carouselProductImages" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    {{#each product.images}}
+                        <div class="carousel-item {{ifIndexZero @index}}">
+                            <img class="product-detail-img" src="{{this}}" alt="Slide {{@index}}">
+                        </div>
+                    {{/each}}
+                </div>
+                <a class="carousel-control-prev" href="#carouselProductImages" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#carouselProductImages" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Next</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Cột thông tin mua hàng -->
+        <div class="product-detail-view-side col-lg-4 col-12 order-lg-3 order-2">
+            <h1 class="product-detail-view-side-title">{{product.name}}</h1>
+
+            <p class="product-detail-view-side-price">{{formatPrice product.price}}</p>
+
+            <div class="product-detail-btn-container">
+                <!-- Nút mua ngay -->
+                <form action="/payment/buy-now" method="POST">
+                    <input type="hidden" name="productId" value="{{product.id}}">
+                    <input type="hidden" name="quantity" value="1">
+                    <button type="submit" class="btn btn-dark btn-buy-item">Mua ngay</button>
+                </form>
+                
+                <!-- Thêm vào giỏ -->
+                <form action="/carts/add/{{product.id}}" method="POST">
+                    <button type="submit" class="btn btn-dark btn-add-card">Thêm vào giỏ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

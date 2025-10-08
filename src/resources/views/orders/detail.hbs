@@ -1,0 +1,56 @@
+<div class="container mt-5">
+  <h2 class="mb-4">Chi tiết đơn hàng #{{order.id}}</h2>
+  
+  <div class="card p-3 mb-4">
+    <p><strong>Ngày tạo:</strong> {{formatDate order.createdAt}}</p>
+    <p><strong>Tổng tiền:</strong> {{formatPrice order.total}}</p>
+    <p><strong>Trạng thái:</strong>
+        {{#if (eq order.status "paid")}}
+            <span class="badge badge-success">Đã thanh toán</span>
+        {{else if (eq order.status "pending")}}
+            <span class="badge badge-warning">Chờ thanh toán</span>
+        {{else if (eq order.status "cancelled")}}
+            <span class="badge badge-secondary">Đã hủy</span>
+        {{else}}
+            <span class="badge badge-danger">Thanh toán thất bại</span>
+        {{/if}}
+    </p>
+  </div>
+
+  {{#if (or (eq order.status "pending") (eq order.status "failed"))}}
+    <form action="/orders/{{order.id}}/retry" method="POST" class="mb-3">
+        <button type="submit" class="btn btn-warning">Thanh toán lại</button>
+    </form>
+    <form action="/orders/{{order.id}}/cancel" method="POST" class="mt-3 mb-3">
+        <button type="submit" class="btn btn-danger">Hủy đơn hàng</button>
+    </form>
+  {{/if}}
+
+  <h4>Sản phẩm</h4>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Ảnh</th>
+        <th>Tên</th>
+        <th>Số lượng</th>
+        <th>Giá</th>
+        <th>Tổng</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+        <tr>
+          <td><img src="{{this.img}}" alt="{{this.name}}" style="width:60px"></td>
+          <td>{{this.name}}</td>
+          <td>{{this.quantity}}</td>
+          <td>{{formatPrice this.price}}</td>
+          <td>{{formatPrice (multiply this.price this.quantity)}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <div class="mt-3">
+    <a href="/orders" class="btn btn-secondary">Quay lại danh sách</a>
+  </div>
+</div>

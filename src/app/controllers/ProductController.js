@@ -4,55 +4,73 @@ class ProductController {
     // Hiển thị danh sách sản phẩm GET /products
     async listProducts(req, res) {
         try {
-            let products = await Product.getAllProducts();
-            res.render('products', { products });
-        } catch (err) {
-            res.status(500).send(err.message);
+            const page = parseInt(req.query.page) || 1;
+            const limit = 8; // số sản phẩm mỗi trang
+            const sort = req.query.sort || "newest"; // mặc định: mới nhất
+            const q = req.query.q || "";               // từ khóa tìm kiếm
+
+            const { products, total } = await Product.getProductsPaginated(page, limit, sort, q);
+
+            const totalPages = Math.ceil(total / limit);
+
+            res.render('products', {
+                products,
+                currentPage: page,
+                totalPages,
+                sort,
+                q
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Lỗi server");
         }
     }
     
     // GET /products/top
     async getTopProducts(req, res) {
-        try {
-            let products = await Product.getProductsByCategory('top');
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
 
-            res.render('products', {
-                products,
-                category: 'top'
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send("Lỗi server");
-        }
+        const { products, total } = await Product.getProductsByCategoryPaginated("top", page, limit);
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("products", {
+            products,
+            currentPage: page,
+            totalPages,
+            category: "top"
+        });
     }
     // GET /products/bottom
     async getBottomProducts(req, res) {
-        try {
-            let products = await Product.getProductsByCategory('bottom');
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
 
-            res.render('products', {
-                products,
-                category: 'bottom'
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send("Lỗi server");
-        }
+        const { products, total } = await Product.getProductsByCategoryPaginated("bottom", page, limit);
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("products", {
+            products,
+            currentPage: page,
+            totalPages,
+            category: "bottom"
+        });
     }
 
     // GET /products/outerwears
-        async getOuterwearsProducts(req, res) {
-        try {
-            let products = await Product.getProductsByCategory('outerwear');
+    async getOuterwearsProducts(req, res) {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
 
-            res.render('products', {
-                products,
-                category: 'outerwear'
-            });
-        } catch (err) {
-            console.error(err);
-            res.status(500).send("Lỗi server");
-        }
+        const { products, total } = await Product.getProductsByCategoryPaginated("outerwear", page, limit);
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("products",  {
+            products,
+            currentPage: page,
+            totalPages,
+            category: "outerwear"
+        });
     }
 
 
@@ -75,13 +93,33 @@ class ProductController {
     // [POST] /admin/products/store
     async store(req, res) {
         try {
-            const { name, price, img, stock, category } = req.body;
-            await Product.createProduct({ name, price, img, stock, category });
+            const { name, price, img, stock, category, extraImages, des } = req.body;
+
+            // B1: thêm sản phẩm
+            const productId = await Product.createProduct({ name, price, img, stock, category, des });
+
+            // B2: thêm ảnh chính vào ProductImages
+            if (img && img.trim() !== "") {
+                await Product.addImage(productId, img.trim());
+            }
+
+            // B3: nếu có ảnh phụ -> thêm vào ProductImages
+            if (extraImages && extraImages.trim() !== "") {
+                const images = extraImages.split(",").map(i => i.trim());
+                for (let image of images) {
+                    if (image) {
+                        await Product.addImage(productId, image);
+                    }
+                }
+            }
+
             res.redirect('/admin/products');
         } catch (err) {
+            console.error(err);
             res.status(500).send('Lỗi khi thêm sản phẩm');
         }
     }
+
 
     // [GET] /admin/products/:id/edit
     async edit(req, res) {
@@ -96,10 +134,33 @@ class ProductController {
     // [POST] /admin/products/:id/update
     async update(req, res) {
         try {
-            const { name, price, img, stock, category } = req.body;
-            await Product.updateProduct(req.params.id, { name, price, img, stock, category });
+            const { name, price, img, stock, category, extraImages, des } = req.body;
+            const productId = req.params.id;
+
+            //update bảng Products
+            await Product.updateProduct(productId, { name, price, img, stock, category, des });
+
+            //xóa hết ảnh cũ
+            await Product.deleteImages(productId);
+
+            //thêm lại ảnh chính
+            if (img && img.trim() !== "") {
+                await Product.addImage(productId, img.trim());
+            }
+
+            //thêm lại ảnh phụ
+            if (extraImages && extraImages.trim() !== "") {
+                const images = extraImages.split(",").map(i => i.trim());
+                for (let image of images) {
+                    if (image) {
+                        await Product.addImage(productId, image);
+                    }
+                }
+            }
+
             res.redirect('/admin/products');
         } catch (err) {
+            console.error(err);
             res.status(500).send('Lỗi khi cập nhật sản phẩm');
         }
     }
@@ -141,6 +202,44 @@ class ProductController {
             res.redirect('/admin/products/trash');
         } catch (err) {
             res.status(500).send('Lỗi khi xóa vĩnh viễn sản phẩm');
+        }
+    }
+
+    // [GET] /products/:id
+    async detail(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+            const product = await Product.getProductWithImages(id);
+
+            if (!product) {
+                return res.status(404).render('404', { message: 'Sản phẩm không tồn tại' });
+            }
+
+            res.render('productDetail', { product });
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Lỗi server");
+        }
+    }
+
+    // GET /products/search?q=...&page=...
+    async search(req, res) {
+        try {
+            const keyword = req.query.q || "";
+            const page = parseInt(req.query.page) || 1;
+            const limit = 8; // số sản phẩm mỗi trang
+
+            const { products, totalPages, currentPage } = await Product.searchProducts(keyword, page, limit);
+
+            res.render('products', {
+                products,
+                q: keyword,
+                totalPages,
+                currentPage
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).send("Lỗi server");
         }
     }
 }

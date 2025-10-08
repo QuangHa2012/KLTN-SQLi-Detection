@@ -4,9 +4,11 @@ const accountRouter = require('./accountRoutes');
 const adminRouter = require('./adminRoutes');
 const cartRouter = require('./cartRoutes');
 const paymentRouter = require('./payment');
+const orderRouter = require('./orderRoutes');
 
 
 function route(app) {
+    app.use('/orders',orderRouter); //tất cả route liên quan đến đơn hàng sẽ đi qua orderRoutes.js
     app.use('/carts',cartRouter); //tất cả route liên quan đến giỏ hàng sẽ đi qua cartRoutes.js
     app.use('/payment',paymentRouter); //tất cả route liên quan đến thanh toán sẽ đi qua payment.js
     app.use('/admin',adminRouter); //tất cả route liên quan đến admin sẽ đi qua adminRoutes.js

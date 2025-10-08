@@ -5,7 +5,7 @@ const config = {
     user: process.env.DB_USER || 'sa',
     password: process.env.DB_PASSWORD || 'abc@123',
     server: process.env.DB_SERVER || 'localhost',          // hoặc DESKTOP-HV20LOM\SQLEXPRESS
-    database: process.env.DB_NAME || 'mssql',           // database
+    database: process.env.DB_NAME || 'mssql',          // database
     options: {
         encrypt: false,
         trustServerCertificate: true,

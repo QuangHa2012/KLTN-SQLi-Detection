@@ -1,0 +1,76 @@
+<div class="container mt-5">
+  <h2>Đơn hàng của bạn</h2>
+  {{#if orders.length}}
+  <table class="table table-bordered mt-3">
+    <thead>
+      <tr>
+        <th>Mã đơn</th>
+        <th>Tổng tiền</th>
+        <th>Trạng thái</th>
+        <th>Ngày đặt</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each orders}}
+      <tr>
+        <td>#{{this.id}}</td>
+        <td>{{this.total}} VND</td>
+        <td>
+          {{#if (eq this.status "paid")}}
+            <span class="badge badge-success">Đã thanh toán</span>
+          {{else if (eq this.status "pending")}}
+            <span class="badge badge-warning">Chờ thanh toán</span>
+          {{else if (eq this.status "cancelled")}}
+            <span class="badge badge-secondary">Đã hủy</span>
+          {{else}}
+            <span class="badge badge-danger">Thanh toán thất bại</span>
+          {{/if}}
+        </td>
+        <td>{{formatDate this.createdAt}}</td>
+        <td>
+          <a href="/orders/{{this.id}}" class="btn btn-primary btn-sm">Xem</a>
+          {{#if (eq this.status "pending")}}
+          <form action="/orders/{{this.id}}/cancel" method="POST" style="display:inline-block">
+            <button type="submit" class="btn btn-danger btn-sm">Hủy đơn</button>
+          </form>
+          {{/if}}
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+
+  <!-- PHÂN TRANG -->
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      
+      {{!-- Nút trước --}}
+      {{#if (gt currentPage 1)}}
+      <li class="page-item">
+        <a class="page-link" href="/orders?page={{sub currentPage 1}}">Trước</a>
+      </li>
+      {{/if}}
+
+      {{!-- Các số trang --}}
+      {{#each (range 1 totalPages)}}
+        <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+          <a class="page-link" href="/orders?page={{this}}">{{this}}</a>
+        </li>
+      {{/each}}
+
+      {{!-- Nút sau --}}
+      {{#if (lt currentPage totalPages)}}
+      <li class="page-item">
+        <a class="page-link" href="/orders?page={{add currentPage 1}}">Sau</a>
+      </li>
+      {{/if}}
+
+    </ul>
+  </nav>
+
+
+  {{else}}
+  <p>Bạn chưa có đơn hàng nào.</p>
+  {{/if}}
+</div>
