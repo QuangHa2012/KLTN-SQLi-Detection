@@ -8,7 +8,7 @@ class CartController {
         const quantity = 1;
 
         if (!userId) {
-            return res.redirect('/login'); // bắt đăng nhập
+            return res.redirect('/accounts/login'); // bắt đăng nhập
         }
 
         try {
@@ -61,7 +61,7 @@ class CartController {
     // Xem giỏ hàng
     async viewCart(req, res) {
         const userId = req.session.user?.id;
-        if (!userId) return res.redirect('/login');
+        if (!userId) return res.redirect('/accounts/login');
 
         try {
             const pool = await connectDB();

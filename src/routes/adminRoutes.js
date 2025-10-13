@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const productController = require('../app/controllers/ProductController');
 const AdminController = require('../app/controllers/AdminController');
+const reportController = require('../app/controllers/ReportController');
 
 // Middleware check admin
 function isAdmin(req, res, next) {
@@ -12,6 +13,7 @@ function isAdmin(req, res, next) {
     }
 }
 
+// Product management routes
 router.get('/products', isAdmin, productController.index);
 router.get('/products/create', isAdmin, productController.create);
 router.post('/products/store', isAdmin, productController.store);
@@ -22,10 +24,24 @@ router.post('/products/:id/delete', isAdmin, productController.delete);
 router.post('/products/:id/delete-permanent',isAdmin, productController.deletePermanent);
 router.post('/products/:id/restore',isAdmin,productController.restore);
 
-
+// User management routes
 router.get('/users', isAdmin, AdminController.listUsers);
 router.post('/users/:id/delete', isAdmin, AdminController.deleteUser);
 router.post('/users/:id/role', isAdmin, AdminController.updateRole);
 router.get('/users/:id', isAdmin, AdminController.userDetail);
+
+
+// Report routes
+router.get('/reports', reportController.showReportPage);
+
+// API JSON cho các biểu đồ
+router.get('/api/revenue/day', reportController.revenueByDay);
+router.get('/api/products/best-selling', reportController.bestSellingProducts);
+router.get('/api/orders/status', reportController.orderStatusStats);
+router.get('/api/summary', reportController.summaryStats);
+
+
+
+
 
 module.exports = router;

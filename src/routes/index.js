@@ -3,7 +3,7 @@ const productRouter = require('./productRoutes');
 const accountRouter = require('./accountRoutes');
 const adminRouter = require('./adminRoutes');
 const cartRouter = require('./cartRoutes');
-const paymentRouter = require('./payment');
+const paymentRouter = require('./paymentRoutes');
 const orderRouter = require('./orderRoutes');
 
 

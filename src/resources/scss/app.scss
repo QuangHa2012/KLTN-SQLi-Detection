@@ -495,18 +495,28 @@
     
 }
 
+.auth-form__socials .auth-form__socials--facebook,
+.auth-form__socials .auth-form__socials--google {
+    flex: 1;            
+    min-width: 0;       
+    padding: 10px;
+    text-align: center;
+}
+
 
 .auth-form__socials-icon {
-    font-size:1.8rem;
+    font-size:24px;
 }
 
 .auth-form__socials--facebook {
     color:#fff;
     background-color: #3A5A98;
+    margin-right: 8px;
 }
 .auth-form__socials--google {
     color: #666;
     background-color: #fff;
+    margin-left: 8px;
 }
 
 .auth-form__social-title {

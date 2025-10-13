@@ -175,6 +175,19 @@ class PaymentController {
 
     async buyNow(req, res) {
         try {
+
+            if (!req.session.user) {
+                req.session.returnTo = req.originalUrl;
+                return res.render("error", {
+                    message: "Bạn cần đăng nhập để thực hiện thanh toán.",
+                    suggestion: "Vui lòng đăng nhập trước khi mua hàng.",
+                    actions: [
+                        { label: "Đăng nhập ngay", link: "/accounts/login", primary: true },
+                        { label: "Quay lại", link: "back" }
+                    ]
+                });
+            }
+            
             const userId = req.session.user.id;
             const { productId, quantity } = req.body;
             const pool = await connectDB();
@@ -261,12 +274,17 @@ class PaymentController {
 
         } catch (err) {
             console.error("===== BuyNow Error =====");
-            if (err.response) {
-                console.error(err.response.data);
-            } else {
-                console.error(err.message);
-            }
-            res.status(500).send("Có lỗi xảy ra khi mua ngay");
+            console.error(err.response?.data || err.message);
+
+            return res.render("error", {
+                message: "Thanh toán thất bại!",
+                suggestion: "Vui lòng thử lại.",
+                error: err.message, // chỉ hiển thị cho dev nếu cần
+                actions: [
+                    { label: "Thử lại", link: "back", primary: true },
+                    { label: "Trang chủ", link: "/" }
+                ]
+            });
         }
     }
 

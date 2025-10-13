@@ -1,0 +1,259 @@
+<div class="container mt-4">
+    <h2 class="mb-4 text-center font-weight-bold">📊 Báo cáo thống kê</h2>
+
+    <!-- ===== Tổng quan ===== -->
+    <div class="row text-center mb-4">
+        <div class="col-md-4 mb-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+            <h6 class="text-muted">Doanh thu hôm nay</h6>
+            <h3 id="revenueToday" class="text-success">0 ₫</h3>
+            </div>
+        </div>
+        </div>
+        <div class="col-md-4 mb-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+            <h6 class="text-muted">Tổng đơn hàng(toàn hệ thống)</h6>
+            <h3 id="totalOrders" class="text-primary">0</h3>
+            </div>
+        </div>
+        </div>
+        <div class="col-md-4 mb-3">
+        <div class="card shadow-sm border-0">
+            <div class="card-body">
+            <h6 class="text-muted">Sản phẩm đã bán</h6>
+            <h3 id="totalSold" class="text-info">0</h3>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- ===== Bộ lọc nhanh ===== -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div class="form-inline mb-2">
+        <label for="quickRange" class="mr-2 font-weight-bold">Khoảng thời gian:</label>
+        <select id="quickRange" class="form-control mr-3">
+            <option value="7">7 ngày qua</option>
+            <option value="30">30 ngày qua</option>
+            <option value="month">Tháng này</option>
+            <option value="custom">Tùy chọn</option>
+        </select>
+        </div>
+
+        <form id="filterForm" class="form-inline mb-2">
+        <input type="date" id="startDate" class="form-control mr-2">
+        <input type="date" id="endDate" class="form-control mr-2">
+        <button class="btn btn-primary">Lọc</button>
+        </form>
+    </div>
+
+    <!-- ===== Biểu đồ ===== -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light font-weight-bold">Doanh thu theo ngày</div>
+            <div class="card-body">
+            <canvas id="revenueChart" height="150"></canvas>
+            </div>
+        </div>
+        </div>
+        <div class="col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light font-weight-bold">Trạng thái đơn hàng</div>
+            <div class="card-body">
+            <canvas id="statusChart" height="150"></canvas>
+            </div>
+        </div>
+        </div>
+        <div class="col-md-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-light font-weight-bold">Sản phẩm bán chạy</div>
+            <div class="card-body">
+            <canvas id="bestSellerChart" height="150"></canvas>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Chart.js ===== -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    let revenueChart, statusChart, bestSellerChart;
+
+    // ===== Định dạng tiền tệ =====
+    const formatVND = (val) => {
+        if (!val || isNaN(val)) return '0 ₫';
+        return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
+    };
+
+    // ===== LOAD SUMMARY =====
+    async function loadSummary() {
+        const res = await fetch('/admin/api/summary');
+        const data = await res.json();
+
+        document.getElementById('revenueToday').textContent = formatVND(data.revenueToday);
+        document.getElementById('totalOrders').textContent = data.totalOrders || 0;
+        document.getElementById('totalSold').textContent = data.totalSold || 0;
+    }
+
+    // ===== LOAD DOANH THU =====
+    async function loadRevenue(startDate, endDate) {
+        const res = await fetch(`/admin/api/revenue/day?startDate=${startDate}&endDate=${endDate}`);
+        const data = await res.json();
+
+        const labels = data.map(d => d.date);
+        const revenues = data.map(d => d.revenue);
+
+        if (revenueChart) revenueChart.destroy();
+
+        const ctx = document.getElementById('revenueChart').getContext('2d');
+        revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+            label: 'Doanh thu (VNĐ)',
+            data: revenues,
+            borderColor: 'rgba(75,192,192,1)',
+            backgroundColor: 'rgba(75,192,192,0.2)',
+            borderWidth: 2,
+            fill: true
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+        });
+    } 
+
+    // ===== LOAD TRẠNG THÁI ĐƠN HÀNG =====
+    async function loadOrderStatus() {
+        try {
+            const res = await fetch('/admin/api/orders/status');
+            const data = await res.json();
+            console.log(" Dữ liệu trạng thái:", data);
+
+            if (!data || data.length === 0) {
+            console.warn(" Không có dữ liệu trạng thái đơn hàng");
+            return;
+            }
+
+            // Tổng số đơn hàng để tính %
+            const total = data.reduce((sum, d) => sum + d.totalOrders, 0);
+
+            // Ánh xạ nhãn và màu
+            const mapLabel = {
+            pending: "Đang xử lý",
+            paid: "Đã thanh toán",
+            failed: "Thất bại",
+            cancelled: "Đã hủy"
+            };
+            const mapColor = {
+            pending: "#ff9800",
+            paid: "#4caf50",
+            failed: "#9c27b0",
+            cancelled: "#f44336"
+            };
+
+            // Chuẩn bị dữ liệu biểu đồ
+            const labels = data.map(d => mapLabel[d.status] || d.status);
+            const counts = data.map(d => d.totalOrders);
+            const colors = data.map(d => mapColor[d.status] || "#9e9e9e");
+            const percents = data.map(d => ((d.totalOrders / total) * 100).toFixed(1));
+
+            if (statusChart) statusChart.destroy();
+
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels,
+                datasets: [{
+                data: counts,
+                backgroundColor: colors,
+                borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { font: { size: 14 }, color: '#333' }
+                },
+                tooltip: {
+                    callbacks: {
+                    label: function (context) {
+                        const i = context.dataIndex;
+                        const label = labels[i];
+                        const count = counts[i];
+                        const percent = percents[i];
+                        return `${label}: ${count} đơn (${percent}%)`;
+                    }
+                    }
+                }
+                }
+            }
+            });
+        } catch (err) {
+            console.error(" Lỗi loadOrderStatus:", err);
+        }
+    }
+
+    // ===== QUICK RANGE =====
+    document.getElementById('quickRange').addEventListener('change', function() {
+        const val = this.value;
+        const today = new Date();
+        let start, end;
+
+        if (val === '7') {
+        start = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        end = today;
+        } else if (val === '30') {
+        start = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        end = today;
+        } else if (val === 'month') {
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = today;
+        } else {
+        return; // custom
+        }
+
+        const startStr = start.toISOString().slice(0, 10);
+        const endStr = end.toISOString().slice(0, 10);
+        document.getElementById('startDate').value = startStr;
+        document.getElementById('endDate').value = endStr;
+
+        updateAllCharts(startStr, endStr);
+    });
+
+    // ===== FORM FILTER =====
+    document.getElementById('filterForm').addEventListener('submit', e => {
+        e.preventDefault();
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+        updateAllCharts(start, end);
+    });
+
+    // ===== CẬP NHẬT TOÀN BỘ =====
+    async function updateAllCharts(start, end) {
+        await loadRevenue(start, end);
+        await loadOrderStatus();
+        await loadBestSellers();
+    }
+
+    // ===== INIT =====
+    window.addEventListener('DOMContentLoaded', () => {
+        const today = new Date().toISOString().slice(0, 10);
+        const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+        document.getElementById('startDate').value = lastWeek;
+        document.getElementById('endDate').value = today;
+
+        loadSummary();
+        updateAllCharts(lastWeek, today);
+    });
+</script>
+
