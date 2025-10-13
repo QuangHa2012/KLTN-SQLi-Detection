@@ -5,13 +5,14 @@
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th><th>Tên</th><th>Giá</th><th>Kho</th><th></th>
+                <th>ID</th><th>Ảnh</th><th>Tên</th><th>Giá</th><th>Kho</th><th></th>
             </tr>
         </thead>
         <tbody>
             {{#each products}}
             <tr>
                 <td>{{this.id}}</td>
+                <td><img src="{{this.img}}" alt="{{this.name}}" style="width: 50px; height: auto;"></td>
                 <td>{{this.name}}</td>
                 <td>{{this.price}}</td>
                 <td>{{this.stock}}</td>

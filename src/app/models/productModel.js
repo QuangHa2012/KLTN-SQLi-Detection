@@ -59,7 +59,7 @@ class ProductModel {
     } 
     
     // Tạo mới sản phẩm
-    async createProduct({ name, price, img, stock, category,des }) {
+    async createProduct({ name, price, img, stock, category,des,gender }) {
         let pool = await connectDB();
         let result = await pool.request()
             .input('name', sql.NVarChar, name)
@@ -68,17 +68,18 @@ class ProductModel {
             .input('stock', sql.Int, stock || 0)
             .input('category', sql.NVarChar, category || null)
             .input('des', sql.NVarChar(sql.MAX), des)
+            .input('gender', sql.NVarChar, gender || null)
             .query(`
-                INSERT INTO Products (name, price, img, stock, category, des,isDeleted)
+                INSERT INTO Products (name, price, img, stock, category, des,gender,isDeleted)
                 OUTPUT INSERTED.id
-                VALUES (@name, @price, @img, @stock, @category, @des,0)
+                VALUES (@name, @price, @img, @stock, @category, @des,@gender,0)
             `);
 
         return result.recordset[0].id; // trả về id sản phẩm
     }
 
     // Cập nhật sản phẩm
-    async updateProduct(id, { name, price, img, stock, category, des }) {
+    async updateProduct(id, { name, price, img, stock, category, des, gender }) {
         let pool = await connectDB();
         await pool.request()
             .input('id', sql.Int, id)
@@ -88,6 +89,7 @@ class ProductModel {
             .input('stock', sql.Int, stock)
             .input('category', sql.NVarChar, category)
             .input('des', sql.NVarChar(sql.MAX), des)
+            .input('gender', sql.NVarChar,  gender)
             .query(`
                 UPDATE Products
                 SET name = @name,
@@ -95,7 +97,8 @@ class ProductModel {
                     img = @img,
                     stock = @stock,
                     category = @category,
-                    des = @des
+                    des = @des,
+                    gender = @gender
                 WHERE id = @id
             `);
     }
@@ -144,17 +147,16 @@ class ProductModel {
             .query("DELETE FROM Products WHERE id=@id");
     }
 
-    // Lấy sản phẩm với phân trang + sort + search
-    async getProductsPaginated(page = 1, limit = 8, sort = "newest", q = "") {
+    // Lấy sản phẩm với phân trang + sort + search + gender filter
+    async getProductsPaginated(page = 1, limit = 8, sort = "newest", q = "", gender = "unisex") {
         let pool = await connectDB();
-
         const offset = (page - 1) * limit;
 
-        // Xác định sắp xếp
-        let orderBy = "ORDER BY createdAt DESC"; // mặc định: mới nhất
+        // 1️⃣ Sắp xếp
+        let orderBy = "ORDER BY id DESC"; // mặc định: mới nhất
         switch (sort) {
             case "oldest":
-                orderBy = "ORDER BY createdAt ASC";
+                orderBy = "ORDER BY id ASC";
                 break;
             case "price_asc":
                 orderBy = "ORDER BY price ASC";
@@ -164,13 +166,24 @@ class ProductModel {
                 break;
         }
 
-        // Điều kiện search
+        // 2️⃣ Điều kiện WHERE
         let whereClause = "WHERE isDeleted = 0";
         if (q && q.trim() !== "") {
-            whereClause += ` AND name LIKE @q`; // tìm theo tên
+            whereClause += " AND name LIKE @q";
         }
 
-        // Lấy danh sách sản phẩm phân trang
+        // Lọc theo giới tính
+        if (gender && gender.trim() !== "") {
+            if (gender === "male") {
+                whereClause += " AND (gender = 'male' OR gender = 'unisex')";
+            } else if (gender === "female") {
+                whereClause += " AND (gender = 'female' OR gender = 'unisex')";
+            } else if (gender === "unisex") {
+                whereClause += " AND gender = 'unisex'";
+            }
+        }
+
+        // 3️⃣ Chuẩn bị request
         let request = pool.request()
             .input('offset', sql.Int, offset)
             .input('limit', sql.Int, limit);
@@ -179,33 +192,33 @@ class ProductModel {
             request.input('q', sql.NVarChar, `%${q}%`);
         }
 
-        let result = await request.query(`
-            SELECT * FROM Products 
+        // 4️⃣ Truy vấn danh sách sản phẩm
+        const result = await request.query(`
+            SELECT * FROM Products
             ${whereClause}
             ${orderBy}
             OFFSET @offset ROWS
             FETCH NEXT @limit ROWS ONLY
         `);
 
-        // Lấy tổng số sản phẩm
-        let countRequest = pool.request();
-        if (q && q.trim() !== "") {
-            countRequest.input('q', sql.NVarChar, `%${q}%`);
-        }
+        // 5️⃣ Đếm tổng sản phẩm
+        const countRequest = pool.request();
+        if (q && q.trim() !== "") countRequest.input('q', sql.NVarChar, `%${q}%`);
+        if (gender && gender !== "unisex") countRequest.input('gender', sql.NVarChar, gender);
 
-        let countResult = await countRequest.query(`
-            SELECT COUNT(*) AS total 
-            FROM Products 
+        const countResult = await countRequest.query(`
+            SELECT COUNT(*) AS total
+            FROM Products
             ${whereClause}
         `);
 
-        const totalProducts = countResult.recordset[0].total;
-
         return {
             products: result.recordset,
-            total: totalProducts
+            total: countResult.recordset[0].total
         };
     }
+
+
 
 
     // Lấy sản phẩm theo category với phân trang

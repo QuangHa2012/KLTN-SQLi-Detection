@@ -1,22 +1,25 @@
 <div class="products-section container-fluid">
-    <form action="/products/search" method="GET" class="search-bar mb-4 mt-4">
-        <input type="text" name="q" class="form-control search-input" placeholder="Tìm sản phẩm..." value="{{q}}">
-        <button type="submit" class="btn-search">
-            <i class="bi bi-search"></i>
-        </button>
-    </form>
+    <!-- Thanh tìm kiếm -->
+    <form action="/products" method="GET" class="search-bar mb-4 mt-4 d-flex flex-wrap gap-2 align-items-center">
+        <!-- Ô tìm kiếm -->
+        <input type="text" name="q" class="form-control search-input" placeholder="Tìm sản phẩm..." value="{{q}}" style="flex:1;">
 
-    <!-- Dropdown sắp xếp -->
-    <form method="GET" action="/products">
-        {{#if q}}
-            <input type="hidden" name="q" value="{{q}}">
-        {{/if}}
+        <!-- Bộ lọc giới tính -->
+        <select name="gender" class="form-select w-auto" onchange="this.form.submit()">
+            <option value="unisex" {{#if (eq gender "unisex")}}selected{{/if}}> Unisex</option>
+            <option value="male" {{#if (eq gender "male")}}selected{{/if}}> Đồ nam</option>
+            <option value="female" {{#if (eq gender "female")}}selected{{/if}}> Đồ nữ</option>
+        </select>
+
+        <!-- Dropdown sắp xếp -->
         <select name="sort" class="form-select w-auto" onchange="this.form.submit()">
             <option value="newest" {{#if (eq sort "newest")}}selected{{/if}}>Mới nhất</option>
             <option value="oldest" {{#if (eq sort "oldest")}}selected{{/if}}>Cũ nhất</option>
             <option value="price_asc" {{#if (eq sort "price_asc")}}selected{{/if}}>Giá tăng dần</option>
             <option value="price_desc" {{#if (eq sort "price_desc")}}selected{{/if}}>Giá giảm dần</option>
         </select>
+
+        <button type="submit" class="btn btn-dark">Lọc</button>
     </form>
 
     <div class="row row-products">
@@ -60,7 +63,7 @@
                     {{#if (gt currentPage 1)}}
                     <li class="page-item">
                         <a class="page-link" 
-                        href="/products{{#if category}}/{{category}}{{/if}}?page={{sub currentPage 1}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}">
+                        href="/products{{#if category}}/{{category}}{{/if}}?page={{sub currentPage 1}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}{{#if ../gender}}&gender={{../gender}}{{/if}}">
                             Trước
                         </a>
                     </li>
@@ -70,7 +73,7 @@
                     {{#each (range 1 totalPages)}}
                     <li class="page-item {{#if (eq ../currentPage this)}}active{{/if}}">
                         <a class="page-link" 
-                        href="/products{{#if ../category}}/{{../category}}{{/if}}?page={{this}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}">
+                        href="/products{{#if ../category}}/{{../category}}{{/if}}?page={{this}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}{{#if ../gender}}&gender={{../gender}}{{/if}}">
                             {{this}}
                         </a>
                     </li>
@@ -80,7 +83,7 @@
                     {{#if (lt currentPage totalPages)}}
                     <li class="page-item">
                         <a class="page-link" 
-                        href="/products{{#if category}}/{{category}}{{/if}}?page={{add currentPage 1}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}">
+                        href="/products{{#if category}}/{{category}}{{/if}}?page={{add currentPage 1}}&sort={{../sort}}{{#if ../q}}&q={{../q}}{{/if}}{{#if ../gender}}&gender={{../gender}}{{/if}}">
                             Sau
                         </a>
                     </li>

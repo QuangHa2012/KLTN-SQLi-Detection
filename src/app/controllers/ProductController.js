@@ -5,23 +5,25 @@ class ProductController {
     async listProducts(req, res) {
         try {
             const page = parseInt(req.query.page) || 1;
-            const limit = 8; // số sản phẩm mỗi trang
-            const sort = req.query.sort || "newest"; // mặc định: mới nhất
-            const q = req.query.q || "";               // từ khóa tìm kiếm
+            const limit = 8;
+            const sort = req.query.sort || "newest";
+            const q = typeof req.query.q === "string" ? req.query.q : "";
+            const gender = typeof req.query.gender === "string" ? req.query.gender : "";
 
-            const { products, total } = await Product.getProductsPaginated(page, limit, sort, q);
+            const { products, total } = await Product.getProductsPaginated(page, limit, sort, q, gender);
 
             const totalPages = Math.ceil(total / limit);
 
-            res.render('products', {
+            res.render("products", {
                 products,
                 currentPage: page,
                 totalPages,
                 sort,
-                q
+                q,
+                gender
             });
         } catch (error) {
-            console.error(error);
+            console.error("❌ Lỗi khi lấy sản phẩm:", error);
             res.status(500).send("Lỗi server");
         }
     }
@@ -93,10 +95,10 @@ class ProductController {
     // [POST] /admin/products/store
     async store(req, res) {
         try {
-            const { name, price, img, stock, category, extraImages, des } = req.body;
+            const { name, price, img, stock, category, extraImages, des, gender } = req.body;
 
             // B1: thêm sản phẩm
-            const productId = await Product.createProduct({ name, price, img, stock, category, des });
+            const productId = await Product.createProduct({ name, price, img, stock, category, des, gender });
 
             // B2: thêm ảnh chính vào ProductImages
             if (img && img.trim() !== "") {
@@ -134,11 +136,11 @@ class ProductController {
     // [POST] /admin/products/:id/update
     async update(req, res) {
         try {
-            const { name, price, img, stock, category, extraImages, des } = req.body;
+            const { name, price, img, stock, category, extraImages, des, gender } = req.body;
             const productId = req.params.id;
 
             //update bảng Products
-            await Product.updateProduct(productId, { name, price, img, stock, category, des });
+            await Product.updateProduct(productId, { name, price, img, stock, category, des, gender });
 
             //xóa hết ảnh cũ
             await Product.deleteImages(productId);
