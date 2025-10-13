@@ -38,21 +38,31 @@ class AccountController {
     async register(req, res) {
         const { username, password, confirmPassword } = req.body;
 
-        if (password !== confirmPassword) {
-            return res.render('accounts/register', { error: 'Mật khẩu nhập lại không khớp!' });
-        }
-
         try {
-            const existingUser = await userModel.findUserByUsername(username);
-            if (existingUser) {
-                return res.render('accounts/register', { error: 'Email đã được sử dụng!' });
+            // 1 Kiểm tra dữ liệu đầu vào
+            if (!username || !password || !confirmPassword) {
+                return res.render('accounts/register', { error: 'Vui lòng nhập đầy đủ thông tin!' });
             }
 
+            // 2 Kiểm tra mật khẩu nhập lại
+            if (password !== confirmPassword) {
+                return res.render('accounts/register', { error: 'Mật khẩu nhập lại không khớp!' });
+            }
+
+            // 3 Kiểm tra username tồn tại
+            const existingUser = await userModel.findUserByUsername(username);
+            if (existingUser) {
+                return res.render('accounts/register', { error: 'Tên người dùng đã tồn tại!' });
+            }
+
+            // 4 Mã hóa mật khẩu và thêm user
             const hashedPassword = await bcrypt.hash(password, 10);
             await userModel.createUser(username, hashedPassword);
+
+            // 5Thành công → chuyển đến trang đăng nhập
             res.redirect('/accounts/login');
         } catch (err) {
-            console.error(err);
+            console.error('❌ Lỗi khi đăng ký:', err);
             res.render('accounts/register', { error: 'Đăng ký thất bại, vui lòng thử lại!' });
         }
     }
