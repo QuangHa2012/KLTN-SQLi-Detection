@@ -76,12 +76,45 @@ class CartController {
                     WHERE c.user_id = @userId
                 `);
 
-            res.render('cart', { items: result.recordset });
+            const items = result.recordset;
+
+            
+            let total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+           
+            const discountResult = await pool.request()
+                .input("total", sql.Decimal(18,2), total)
+                .query(`
+                    SELECT TOP 1 discountPercent
+                    FROM DiscountRules
+                    WHERE @total >= minTotal AND active = 1
+                    ORDER BY minTotal DESC
+                `);
+
+            let discountPercent = 0;
+            if (discountResult.recordset.length > 0) {
+                discountPercent = discountResult.recordset[0].discountPercent;
+            }
+
+            
+            const discountAmount = total * discountPercent / 100;
+            const finalTotal = total - discountAmount;
+
+            
+            res.render('cart', { 
+                items,
+                total,
+                discountPercent,
+                discountAmount,
+                finalTotal
+            });
+
         } catch (err) {
             console.error(err);
             res.status(500).send('Error load cart');
         }
     }
+
 
     // Xóa 1 sản phẩm khỏi giỏ
     async removeItem(req, res) {

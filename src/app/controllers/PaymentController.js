@@ -30,14 +30,33 @@ class PaymentController {
                 0
             );
 
+            const discountResult = await pool.request()
+                .input("total", sql.Decimal(18, 2), total)
+                .query(`
+                    SELECT TOP 1 discountPercent
+                    FROM DiscountRules
+                    WHERE @total >= minTotal AND active = 1
+                    ORDER BY minTotal DESC
+                `);
+
+            let discountPercent = 0;
+            if (discountResult.recordset.length > 0) {
+                discountPercent = discountResult.recordset[0].discountPercent;
+            }
+
+            const discountAmount = total * discountPercent / 100;
+            const finalTotal = total - discountAmount;
+
             // 3. Tạo order pending
             let orderResult = await pool.request()
                 .input("userId", sql.Int, userId)
-                .input("total", sql.Decimal(18, 2), total)
+                .input("total", sql.Decimal(18, 2), finalTotal)
+                .input("discountPercent", sql.Int, discountPercent)
+                .input("discountAmount", sql.Decimal(18, 2), discountAmount)
                 .query(`
-                    INSERT INTO Orders (user_id, total, status) 
+                    INSERT INTO Orders (user_id, total, discountPercent, discountAmount, status) 
                     OUTPUT INSERTED.id
-                    VALUES (@userId, @total, 'pending')
+                    VALUES (@userId, @total, @discountPercent, @discountAmount, 'pending')
                 `);
 
             let orderId = orderResult.recordset[0].id;
@@ -63,7 +82,7 @@ class PaymentController {
             const orderInfo = `Thanh toán đơn hàng #${orderId}`;
             const redirectUrl = process.env.MOMO_REDIRECT_URL || "http://localhost:3000/payment/success";
             const ipnUrl = process.env.MOMO_NOTIFY_URL || "http://localhost:3000/payment/momo-notify";
-            const amount = total.toString();
+            const amount = finalTotal.toString();
             const extraData = "";
 
             // orderId unique cho MoMo
@@ -173,6 +192,7 @@ class PaymentController {
         }
     }
 
+    //
     async buyNow(req, res) {
         try {
 
@@ -203,6 +223,23 @@ class PaymentController {
 
             const product = productResult.recordset[0];
             const total = product.price * quantity;
+
+            const discountResult = await pool.request()
+                .input("total", sql.Decimal(18, 2), total)
+                .query(`
+                    SELECT TOP 1 discountPercent
+                    FROM DiscountRules
+                    WHERE @total >= minTotal AND active = 1
+                    ORDER BY minTotal DESC
+                `);
+
+            let discountPercent = 0;
+            if (discountResult.recordset.length > 0) {
+                discountPercent = discountResult.recordset[0].discountPercent;
+            }
+
+            const discountAmount = total * discountPercent / 100;
+            const finalTotal = total - discountAmount;
 
             // 2. Tạo order pending
             let orderResult = await pool.request()
@@ -235,7 +272,7 @@ class PaymentController {
             const orderInfo = `Mua ngay sản phẩm #${productId}`;
             const redirectUrl = process.env.MOMO_REDIRECT_URL || "http://localhost:3000/payment/success";
             const ipnUrl = process.env.MOMO_NOTIFY_URL || "http://localhost:3000/payment/momo-notify";
-            const amount = total.toString();
+            const amount = finalTotal.toString();
             const extraData = "";
 
             const momoOrderId = orderId + "_" + Date.now();

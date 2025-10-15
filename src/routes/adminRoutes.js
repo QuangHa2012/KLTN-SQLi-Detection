@@ -3,6 +3,7 @@ const router = express.Router();
 const productController = require('../app/controllers/ProductController');
 const AdminController = require('../app/controllers/AdminController');
 const reportController = require('../app/controllers/ReportController');
+const discountController = require('../app/controllers/discountController');
 
 // Middleware check admin
 function isAdmin(req, res, next) {
@@ -34,13 +35,21 @@ router.get('/users/:id', isAdmin, AdminController.userDetail);
 // Report routes
 router.get('/reports', reportController.showReportPage);
 
-// API JSON cho các biểu đồ
+// API JSON chart
 router.get('/api/revenue/day', reportController.revenueByDay);
 router.get('/api/products/best-selling', reportController.bestSellingProducts);
 router.get('/api/orders/status', reportController.orderStatusStats);
 router.get('/api/summary', reportController.summaryStats);
 
 
+
+// Discount management routes
+router.get('/discounts', discountController.list);
+router.get('/discounts/add', discountController.addPage);
+router.post('/discounts/add', discountController.add);
+router.get('/discounts/edit/:id', discountController.editPage);
+router.post('/discounts/edit/:id', discountController.update);
+router.get('/discounts/delete/:id', discountController.delete);
 
 
 

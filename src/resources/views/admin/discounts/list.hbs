@@ -1,0 +1,37 @@
+<div class="container mt-4">
+  <h2 class="mb-4">🎁 Danh sách quy tắc giảm giá</h2>
+
+  <a href="/admin/discounts/add" class="btn btn-primary mb-3">+ Thêm quy tắc mới</a>
+
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tổng tối thiểu (₫)</th>
+        <th>Giảm (%)</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each discounts}}
+      <tr>
+        <td>{{this.id}}</td>
+        <td>{{this.minTotal}}</td>
+        <td>{{this.discountPercent}}</td>
+        <td>
+          {{#if this.active}}
+            <span class="text-success fw-bold">Hoạt động</span>
+          {{else}}
+            <span class="text-muted">Tắt</span>
+          {{/if}}
+        </td>
+        <td>
+          <a href="/admin/discounts/edit/{{this.id}}" class="btn btn-warning btn-sm">Sửa</a>
+          <a href="/admin/discounts/delete/{{this.id}}" class="btn btn-danger btn-sm" onclick="return confirm('Xóa quy tắc này?')">Xóa</a>
+        </td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>

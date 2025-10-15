@@ -62,7 +62,7 @@ class UserModel {
         console.log(`🗑️ Đã xóa user có id: ${id}`);
     }
 
-    // 🔐 Cập nhật mật khẩu
+    //  Cập nhật mật khẩu
     async updatePassword(id, newHashedPassword) {
         const pool = await connectDB();
         await pool.request()

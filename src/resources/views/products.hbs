@@ -19,12 +19,12 @@
             <option value="price_desc" {{#if (eq sort "price_desc")}}selected{{/if}}>Giá giảm dần</option>
         </select>
 
-        <button type="submit" class="btn btn-dark">Lọc</button>
+        <button type="submit" class="btn btn-dark">Tìm kiếm</button>
     </form>
 
     <div class="row row-products">
         {{#each products}}
-        <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+        <div class="col-lg-3 col-md-6 col-sm-6 col-12">
             <div class="card card-item"> 
                 <a href="/products/{{this.id}}" class="card-img-link">
                     <img class="card-img-top" src="{{this.img}}" alt="{{this.name}}">

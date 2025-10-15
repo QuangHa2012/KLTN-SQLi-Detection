@@ -1,0 +1,19 @@
+<div class="container mt-4">
+  <h2>➕ Thêm quy tắc giảm giá</h2>
+  <form method="POST" action="/admin/discounts/add" class="mt-3">
+    <div class="mb-3">
+      <label>Tổng tối thiểu (₫)</label>
+      <input type="number" name="minTotal" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Phần trăm giảm (%)</label>
+      <input type="number" name="discountPercent" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Kích hoạt?</label>
+      <input type="checkbox" name="active" checked>
+    </div>
+    <button type="submit" class="btn btn-success">Lưu</button>
+    <a href="/admin/discounts" class="btn btn-secondary">Hủy</a>
+  </form>
+</div>
