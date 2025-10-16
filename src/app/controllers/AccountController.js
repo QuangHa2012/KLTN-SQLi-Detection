@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const userModel = require('../models/userModel');
+const passport = require('../../config/passport');
 
 class AccountController {
     // GET /accounts/login
@@ -74,6 +75,31 @@ class AccountController {
             res.redirect('/accounts/login');
         });
     }
+
+    // GET /accounts/google đăng nhập với Google
+    googleLogin(req, res, next) {
+        passport.authenticate("google", { scope: ["profile", "email"] })(req, res, next);
+    }
+
+    //  GET /accounts/google/callback xử lý callback từ Google
+    googleCallback(req, res, next) {
+        passport.authenticate("google", { failureRedirect: "/accounts/login" }, (err, user) => {
+        if (err || !user) {
+            console.error("Lỗi Google Callback:", err);
+            return res.redirect("/accounts/login");
+        }
+
+        req.session.user = {
+            id: user.id,
+            username: user.username,
+            role: user.role,
+        };
+
+        res.redirect("/");
+        })(req, res, next);
+    }
+
+    
 }
 
 module.exports = new AccountController();

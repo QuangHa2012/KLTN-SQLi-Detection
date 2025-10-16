@@ -5,6 +5,7 @@ const { engine } = require('express-handlebars');
 const session = require('express-session');
 const cartCount = require('./app/middleware/cartCount');
 const path = require('path');
+const passport = require('./config/passport');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -31,6 +32,10 @@ app.use(session({
     rolling: true,  // reset lại thời gian cookie mỗi lần request
     cookie: { maxAge: 60000 * 60 } // 1h
 }));
+
+// passport
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Truyền user vào tất cả view
 app.use((req, res, next) => {
