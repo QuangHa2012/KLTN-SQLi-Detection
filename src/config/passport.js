@@ -1,58 +1,62 @@
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
+const bcrypt = require("bcrypt");
 const { sql, connectDB } = require("../config/db/db");
 
-// Google Strategy
+// ================= GOOGLE STRATEGY =================
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/accounts/google/callback", // 👈 theo yêu cầu của bạn
+      callbackURL: "http://localhost:3000/accounts/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
         const pool = await connectDB();
-
-        // Kiểm tra user đã tồn tại chưa
         const email = profile.emails[0].value;
-        const check = await pool
+        const avatar = profile.photos[0].value;
+        const provider = "google";
+
+        //  Kiểm tra user theo email + provider (KHÔNG dùng username)
+        const checkUser = await pool
           .request()
-          .input("username", sql.NVarChar, email)
-          .query("SELECT * FROM users WHERE username = @username");
+          .input("email", sql.NVarChar, email)
+          .input("authProvider", sql.NVarChar, provider)
+          .query("SELECT * FROM users WHERE email = @email AND authProvider = @authProvider");
 
         let user;
-        if (check.recordset.length === 0) {
-          // Nếu chưa có -> tạo user mới
-          await pool
-            .request()
-            .input("username", sql.NVarChar, email)
-            .input("password", sql.NVarChar, "")
+
+        if (checkUser.recordset.length === 0) {
+          // 🔹 Tạo user mới
+          const insertUser = await pool.request()
+            .input("username", sql.NVarChar, profile.displayName)
+            .input("email", sql.NVarChar, email)
+            .input("password", sql.NVarChar, "") // không cần mật khẩu
             .input("role", sql.NVarChar, "user")
-            .query(
-              "INSERT INTO users (username, password, role) VALUES (@username, @password, @role)"
-            );
+            .input("authProvider", sql.NVarChar, provider)
+            .input("avatar", sql.NVarChar, avatar)
+            .query(`
+              INSERT INTO users (username, email, password, role, authProvider, avatar)
+              OUTPUT INSERTED.*
+              VALUES (@username, @email, @password, @role, @authProvider, @avatar)
+            `);
 
-          const newUser = await pool
-            .request()
-            .input("username", sql.NVarChar, email)
-            .query("SELECT * FROM users WHERE username = @username");
-
-          user = newUser.recordset[0];
+          user = insertUser.recordset[0];
         } else {
-          user = check.recordset[0];
+          user = checkUser.recordset[0];
         }
 
         done(null, user);
       } catch (err) {
-        console.error("Lỗi xác thực Google:", err);
+        console.error("❌ Google Auth Error:", err);
         done(err, null);
       }
     }
   )
 );
 
-// Lưu user vào session
+// ================= SESSION SERIALIZATION =================
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -63,8 +67,10 @@ passport.deserializeUser(async (id, done) => {
     const result = await pool
       .request()
       .input("id", sql.Int, id)
-      .query("SELECT * FROM users WHERE id = @id");
-    done(null, result.recordset[0]);
+      .query("SELECT id, username, email, role, avatar, authProvider FROM users WHERE id = @id");
+    
+    const user = result.recordset[0];
+    done(null, user);
   } catch (err) {
     done(err, null);
   }

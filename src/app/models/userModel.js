@@ -2,32 +2,22 @@ const { sql, connectDB } = require('../../config/db/db');
 
 class UserModel {
     // Tạo user mới (có kiểm tra trùng)
-    async createUser(username, hashedPassword) {
-        if (!username || !hashedPassword) {
-            throw new Error("Thiếu thông tin username hoặc password khi tạo user");
-        }
-
+    // Tạo user đầy đủ (cho local, có email + authProvider)
+    async createUser({ username, email, password, role, authProvider }) {
         const pool = await connectDB();
 
-        // Kiểm tra trùng username trước khi chèn
-        const checkUser = await pool.request()
-            .input('username', sql.NVarChar, username)
-            .query('SELECT id FROM users WHERE username = @username');
-
-        if (checkUser.recordset.length > 0) {
-            throw new Error("Username đã tồn tại, không thể thêm mới");
-        }
-
-        // Chèn user mới
         await pool.request()
             .input('username', sql.NVarChar, username)
-            .input('password', sql.NVarChar, hashedPassword)
+            .input('email', sql.NVarChar, email || null)
+            .input('password', sql.NVarChar, password)
+            .input('role', sql.NVarChar, role)
+            .input('authProvider', sql.NVarChar, authProvider)
             .query(`
-                INSERT INTO users (username, password)
-                VALUES (@username, @password)
+                INSERT INTO users (username, email, password, role, authProvider)
+                VALUES (@username, @email, @password, @role, @authProvider)
             `);
 
-        console.log(`✅ Đã thêm user mới: ${username}`);
+        console.log(`✅ Đã thêm user mới (local): ${username}`);
     }
 
     //  Tìm user theo username
@@ -39,6 +29,19 @@ class UserModel {
             .input('username', sql.NVarChar, username)
             .query('SELECT * FROM users WHERE username = @username');
 
+        return result.recordset[0];
+    }
+
+    
+    // Tìm user theo username hoặc email (dùng cho đăng nhập)
+    async findUserByUsernameOrEmail(identifier) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('identifier', sql.NVarChar, identifier)
+            .query(`
+                SELECT * FROM users
+                WHERE username = @identifier OR email = @identifier
+            `);
         return result.recordset[0];
     }
 
@@ -72,6 +75,49 @@ class UserModel {
 
         console.log(`🔄 Đã cập nhật mật khẩu cho user ID: ${id}`);
     }
+
+    //  Tạo user đăng nhập qua mạng xã hội
+    async createSocialUser(username, avatar, provider) {
+        const pool = await connectDB();
+
+        const fakePassword = "oauth_random_fake_password"; // mật khẩu giả (sẽ được hash ở ngoài)
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .input('password', sql.NVarChar, fakePassword)
+            .input('role', sql.NVarChar, 'user')
+            .input('authProvider', sql.NVarChar, provider)
+            .input('avatar', sql.NVarChar, avatar)
+            .query(`
+                INSERT INTO users (username, password, role, authProvider, avatar)
+                OUTPUT INSERTED.*
+                VALUES (@username, @password, @role, @authProvider, @avatar)
+            `);
+
+        return result.recordset[0];
+    }
+
+    //  Tìm user theo username + provider
+    async findByUsernameAndProvider(username, provider) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('username', sql.NVarChar, username)
+            .input('authProvider', sql.NVarChar, provider)
+            .query('SELECT * FROM users WHERE username = @username AND authProvider = @authProvider');
+        return result.recordset[0];
+    }
+
+    // Tìm user theo username hoặc email (dùng cho đăng nhập)
+    async findUserByUsernameOrEmail(identifier) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('identifier', sql.NVarChar, identifier)
+            .query(`
+                SELECT * FROM users
+                WHERE username = @identifier OR email = @identifier
+            `);
+        return result.recordset[0];
+    }
+
 }
 
 module.exports = new UserModel();

@@ -1,13 +1,20 @@
 <div class="container mt-4">
     <a href="/admin/users" class="btn btn-secondary mb-3">← Quay lại danh sách </a>
 
-    <h2>Thông tin User</h2>
-    <ul>
-        <li><strong>ID:</strong> {{user.id}}</li>
-        <li><strong>Username:</strong> {{user.username}}</li>
-        <li><strong>Role:</strong> {{user.role}}</li>
-        <li><strong>Ngày tạo:</strong> {{formatDate user.createdAt}}</li>
-    </ul>
+    <h2> Thông tin người dùng</h2>
+    <div class="card mb-4 p-3">
+        <div class="d-flex align-items-center gap-3">
+            
+            <div>
+                <p><strong>ID:</strong> {{user.id}}</p>
+                <p><strong>Tên đăng nhập:</strong> {{user.username}}</p>
+                <p><strong>Email:</strong> {{user.email}}</p>
+                <p><strong>Quyền:</strong> {{user.role}}</p>
+                <p><strong>Phương thức đăng nhập:</strong> {{user.authProvider}}</p>
+                <p><strong>Ngày tạo:</strong> {{formatDate user.createdAt}}</p>
+            </div>
+        </div>
+    </div>
 
     {{!-- Giỏ hàng --}}
     {{#if cart}}
@@ -74,3 +81,7 @@
         <p>User này chưa có đơn hàng nào.</p>
     {{/if}}
 </div>
+
+<style>
+
+</style>

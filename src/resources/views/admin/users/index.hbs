@@ -20,6 +20,7 @@
             <tr>
                 <th>ID</th>
                 <th>Tên đăng nhập</th>
+                <th>email</th>
                 <th>Quyền</th>
                 <th>Chi tiết</th>
                 <th>Xóa tài khoản</th>
@@ -30,6 +31,7 @@
             <tr>
                 <td>{{this.id}}</td>
                 <td>{{this.username}}</td>
+                <td>{{this.email}}</td>
                 <td>
                     <form action="/admin/users/{{this.id}}/role" method="POST" class="form-inline">
                         <select name="role" class="form-control form-control-sm mr-2">

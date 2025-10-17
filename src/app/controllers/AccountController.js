@@ -16,10 +16,17 @@ class AccountController {
     // POST /accounts/login
     async login(req, res) {
         const { username, password } = req.body;
+
         try {
-            const user = await userModel.findUserByUsername(username);
+            const user = await userModel.findUserByUsernameOrEmail(username);
             if (!user) {
-                return res.render('accounts/login', { error: 'Email không tồn tại!' });
+                return res.render('accounts/login', { error: 'Không tìm thấy tài khoản!' });
+            }
+
+            if (user.authProvider && user.authProvider !== 'local') {
+                return res.render('accounts/login', {
+                    error: `Tài khoản này được tạo bằng ${user.authProvider}. Vui lòng đăng nhập bằng ${user.authProvider}.`
+                });
             }
 
             const isMatch = await bcrypt.compare(password, user.password);
@@ -31,42 +38,43 @@ class AccountController {
             res.redirect('/');
         } catch (err) {
             console.error(err);
-            res.render('accounts/login', { error: 'Đăng nhập thất bại, vui lòng thử lại!' });
+            res.render('accounts/login', { error: 'Đăng nhập thất bại!' });
         }
     }
 
     // POST /accounts/register
     async register(req, res) {
-        const { username, password, confirmPassword } = req.body;
+        const { username, email, password, confirmPassword } = req.body;
+        if (password !== confirmPassword) {
+            return res.render('accounts/register', { error: 'Mật khẩu không khớp!' });
+        }
 
         try {
-            // 1 Kiểm tra dữ liệu đầu vào
-            if (!username || !password || !confirmPassword) {
-                return res.render('accounts/register', { error: 'Vui lòng nhập đầy đủ thông tin!' });
+            const existingUsername = await userModel.findUserByUsernameOrEmail(username);
+            const existingEmail = email ? await userModel.findUserByUsernameOrEmail(email) : null;
+            if (existingUsername || existingEmail) {
+                return res.render('accounts/register', { error: 'Tên đăng nhập hoặc email đã tồn tại!' });
             }
+            // if (existing) {
+            //     return res.render('accounts/register', { error: 'Tên đăng nhập hoặc email đã tồn tại!' });
+            // }
 
-            // 2 Kiểm tra mật khẩu nhập lại
-            if (password !== confirmPassword) {
-                return res.render('accounts/register', { error: 'Mật khẩu nhập lại không khớp!' });
-            }
+            const hashed = await bcrypt.hash(password, 10);
+            await userModel.createUser({
+                username,
+                email,
+                password: hashed,
+                role: 'user',
+                authProvider: 'local'
+            });
 
-            // 3 Kiểm tra username tồn tại
-            const existingUser = await userModel.findUserByUsername(username);
-            if (existingUser) {
-                return res.render('accounts/register', { error: 'Tên người dùng đã tồn tại!' });
-            }
-
-            // 4 Mã hóa mật khẩu và thêm user
-            const hashedPassword = await bcrypt.hash(password, 10);
-            await userModel.createUser(username, hashedPassword);
-
-            // 5Thành công → chuyển đến trang đăng nhập
             res.redirect('/accounts/login');
         } catch (err) {
-            console.error('❌ Lỗi khi đăng ký:', err);
-            res.render('accounts/register', { error: 'Đăng ký thất bại, vui lòng thử lại!' });
+            console.error(err);
+            res.render('accounts/register', { error: 'Đăng ký thất bại!' });
         }
     }
+
 
 
     // GET /accounts/logout
@@ -84,18 +92,30 @@ class AccountController {
     //  GET /accounts/google/callback xử lý callback từ Google
     googleCallback(req, res, next) {
         passport.authenticate("google", { failureRedirect: "/accounts/login" }, (err, user) => {
-        if (err || !user) {
-            console.error("Lỗi Google Callback:", err);
-            return res.redirect("/accounts/login");
-        }
+            if (err || !user) {
+                console.error("Lỗi Google Callback:", err);
+                return res.redirect("/accounts/login");
+            }
 
-        req.session.user = {
-            id: user.id,
-            username: user.username,
-            role: user.role,
-        };
+            //  Dòng quan trọng: để Passport lưu user vào session
+            req.login(user, (err) => {
+                if (err) {
+                    console.error("Lỗi khi login user:", err);
+                    return res.redirect("/accounts/login");
+                }
 
-        res.redirect("/");
+                // Sau đó vẫn có thể lưu thêm dữ liệu tùy ý
+                req.session.user = {
+                    id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    role: user.role,
+                    avatar: user.avatar,
+                    authProvider: user.authProvider,
+                };
+
+                res.redirect("/");
+            });
         })(req, res, next);
     }
 

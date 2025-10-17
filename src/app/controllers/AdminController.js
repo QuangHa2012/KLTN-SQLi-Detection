@@ -33,7 +33,7 @@ class AdminController {
 
             // Lấy user với filter + phân trang
             let query = `
-                SELECT id, username, role, createdAt
+                SELECT id, username, email, role, createdAt
                 FROM Users
                 ${whereClause}
                 ORDER BY id
@@ -100,7 +100,18 @@ class AdminController {
             // Lấy thông tin user
             let userResult = await pool.request()
                 .input("id", sql.Int, userId)
-                .query("SELECT id, username, role, createdAt FROM Users WHERE id=@id");
+                .query(`
+                    SELECT 
+                        id, 
+                        username, 
+                        email,
+                        role, 
+                        authProvider,
+                        avatar,
+                        createdAt
+                    FROM Users 
+                    WHERE id=@id
+                `);
             if (!userResult.recordset.length) {
                 return res.status(404).send("User không tồn tại");
             }

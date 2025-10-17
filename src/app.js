@@ -37,10 +37,12 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
 // Truyền user vào tất cả view
 app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    next();
+  res.locals.user = req.user || req.session.user || null;
+  next();
 });
 
 //count cart items
