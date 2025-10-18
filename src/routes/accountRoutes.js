@@ -1,18 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../app/controllers/AccountController');
+const accountController = require('../app/controllers/AccountController');
 
 
-router.get('/login', authController.loginPage);
-router.post('/login', authController.login);
+router.get('/login', accountController.loginPage);
+router.post('/login', accountController.login);
 
-router.get('/register', authController.registerPage);
-router.post('/register', authController.register);
+router.get('/register', accountController.registerPage);
+router.post('/register', accountController.register);
 
-router.get('/logout', authController.logout);
+router.get('/logout', accountController.logout);
 
 
-router.get('/google', authController.googleLogin);
-router.get('/google/callback', authController.googleCallback);
+router.get('/google', accountController.googleLogin);
+router.get('/google/callback', accountController.googleCallback);
+
+router.get('/facebook', accountController.facebookLogin);
+router.get('/facebook/callback', accountController.facebookCallback);
 
 module.exports = router;

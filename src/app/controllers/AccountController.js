@@ -119,6 +119,34 @@ class AccountController {
         })(req, res, next);
     }
 
+    // GET /accounts/facebook
+    facebookLogin(req, res, next) {
+        passport.authenticate("facebook", { scope: ["email"] })(req, res, next);
+    }
+
+    // GET /accounts/facebook/callback
+    facebookCallback(req, res, next) {
+        passport.authenticate("facebook", { failureRedirect: "/accounts/login" }, (err, user) => {
+            if (err || !user) {
+            console.error("Lỗi Facebook Callback:", err);
+            return res.redirect("/accounts/login");
+            }
+
+            req.login(user, (err) => {
+            if (err) return res.redirect("/accounts/login");
+            req.session.user = {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+                avatar: user.avatar,
+                authProvider: user.authProvider,
+            };
+            res.redirect("/");
+            });
+        })(req, res, next);
+    }
+
     
 }
 
