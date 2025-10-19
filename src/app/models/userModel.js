@@ -76,23 +76,19 @@ class UserModel {
         console.log(`🔄 Đã cập nhật mật khẩu cho user ID: ${id}`);
     }
 
-    //  Tạo user đăng nhập qua mạng xã hội
-    async createSocialUser(username, avatar, provider) {
+     // Tạo user mới từ đăng nhập xã hội
+    async createSocialUser(username, email, avatar, provider) {
         const pool = await connectDB();
-
-        const fakePassword = "oauth_random_fake_password"; // mật khẩu giả (sẽ được hash ở ngoài)
         const result = await pool.request()
             .input('username', sql.NVarChar, username)
-            .input('password', sql.NVarChar, fakePassword)
-            .input('role', sql.NVarChar, 'user')
-            .input('authProvider', sql.NVarChar, provider)
+            .input('email', sql.NVarChar, email)
             .input('avatar', sql.NVarChar, avatar)
+            .input('authProvider', sql.NVarChar, provider)
             .query(`
-                INSERT INTO users (username, password, role, authProvider, avatar)
+                INSERT INTO users (username, email, avatar, authProvider)
                 OUTPUT INSERTED.*
-                VALUES (@username, @password, @role, @authProvider, @avatar)
+                VALUES (@username, @email, @avatar, @authProvider)
             `);
-
         return result.recordset[0];
     }
 
@@ -115,6 +111,16 @@ class UserModel {
                 SELECT * FROM users
                 WHERE username = @identifier OR email = @identifier
             `);
+        return result.recordset[0];
+    }
+
+    // Tìm user theo email + provider (dùng cho login Google/Facebook)
+    async findByEmailAndProvider(email, provider) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .input('authProvider', sql.NVarChar, provider)
+            .query('SELECT * FROM users WHERE email = @email AND authProvider = @authProvider');
         return result.recordset[0];
     }
 

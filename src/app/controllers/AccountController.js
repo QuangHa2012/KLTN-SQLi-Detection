@@ -50,14 +50,10 @@ class AccountController {
         }
 
         try {
-            const existingUsername = await userModel.findUserByUsernameOrEmail(username);
-            const existingEmail = email ? await userModel.findUserByUsernameOrEmail(email) : null;
-            if (existingUsername || existingEmail) {
-                return res.render('accounts/register', { error: 'Tên đăng nhập hoặc email đã tồn tại!' });
+            const existingLocalUser = await userModel.findByEmailAndProvider(email, 'local');
+            if (existingLocalUser) {
+                return res.render('accounts/register', { error: 'Email này đã được đăng ký bằng tài khoản thường!' });
             }
-            // if (existing) {
-            //     return res.render('accounts/register', { error: 'Tên đăng nhập hoặc email đã tồn tại!' });
-            // }
 
             const hashed = await bcrypt.hash(password, 10);
             await userModel.createUser({
@@ -111,7 +107,7 @@ class AccountController {
                     email: user.email,
                     role: user.role,
                     avatar: user.avatar,
-                    authProvider: user.authProvider,
+                    authProvider: user.authProvider || 'google',
                 };
 
                 res.redirect("/");
@@ -140,7 +136,7 @@ class AccountController {
                 email: user.email,
                 role: user.role,
                 avatar: user.avatar,
-                authProvider: user.authProvider,
+                authProvider: user.authProvider || 'facebook',
             };
             res.redirect("/");
             });

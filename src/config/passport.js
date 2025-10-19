@@ -3,6 +3,7 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook").Strategy;
 const bcrypt = require("bcrypt");
 const { sql, connectDB } = require("../config/db/db");
+const userModel = require("../app/models/userModel");
 
 // ================= GOOGLE STRATEGY =================
 passport.use(
@@ -14,44 +15,20 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const pool = await connectDB();
         const email = profile.emails[0].value;
         const avatar = profile.photos[0].value;
-        const provider = "google";
+        const username = profile.displayName;
+        const provider = 'google';
 
-        //  Kiểm tra user theo email + provider (KHÔNG dùng username)
-        const checkUser = await pool
-          .request()
-          .input("email", sql.NVarChar, email)
-          .input("authProvider", sql.NVarChar, provider)
-          .query("SELECT * FROM users WHERE email = @email AND authProvider = @authProvider");
-
-        let user;
-
-        if (checkUser.recordset.length === 0) {
-          // 🔹 Tạo user mới
-          const insertUser = await pool.request()
-            .input("username", sql.NVarChar, profile.displayName)
-            .input("email", sql.NVarChar, email)
-            .input("password", sql.NVarChar, "") // không cần mật khẩu
-            .input("role", sql.NVarChar, "user")
-            .input("authProvider", sql.NVarChar, provider)
-            .input("avatar", sql.NVarChar, avatar)
-            .query(`
-              INSERT INTO users (username, email, password, role, authProvider, avatar)
-              OUTPUT INSERTED.*
-              VALUES (@username, @email, @password, @role, @authProvider, @avatar)
-            `);
-
-          user = insertUser.recordset[0];
-        } else {
-          user = checkUser.recordset[0];
+        let user = await userModel.findByEmailAndProvider(email, provider);
+        if (!user) {
+          user = await userModel.createSocialUser(username, email, avatar, provider);
         }
 
-        done(null, user);
+        return done(null, user);
       } catch (err) {
         console.error("❌ Google Auth Error:", err);
-        done(err, null);
+        return done(err, null);
       }
     }
   )
@@ -68,41 +45,20 @@ passport.use(
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
-        const pool = await connectDB();
-        const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`; // fallback nếu user không có email công khai
-        const avatar = profile.photos?.[0]?.value || "";
-        const provider = "facebook";
+        const email = profile.emails?.[0]?.value || `${profile.id}@facebook.com`;
+        const avatar = profile.photos?.[0]?.value || '';
+        const username = profile.displayName;
+        const provider = 'facebook';
 
-        const checkUser = await pool
-          .request()
-          .input("email", sql.NVarChar, email)
-          .input("authProvider", sql.NVarChar, provider)
-          .query("SELECT * FROM users WHERE email = @email AND authProvider = @authProvider");
-
-        let user;
-        if (checkUser.recordset.length === 0) {
-          const insertUser = await pool.request()
-            .input("username", sql.NVarChar, profile.displayName)
-            .input("email", sql.NVarChar, email)
-            .input("password", sql.NVarChar, "")
-            .input("role", sql.NVarChar, "user")
-            .input("authProvider", sql.NVarChar, provider)
-            .input("avatar", sql.NVarChar, avatar)
-            .query(`
-              INSERT INTO users (username, email, password, role, authProvider, avatar)
-              OUTPUT INSERTED.*
-              VALUES (@username, @email, @password, @role, @authProvider, @avatar)
-            `);
-
-          user = insertUser.recordset[0];
-        } else {
-          user = checkUser.recordset[0];
+        let user = await userModel.findByEmailAndProvider(email, provider);
+        if (!user) {
+          user = await userModel.createSocialUser(username, email, avatar, provider);
         }
 
-        done(null, user);
+        return done(null, user);
       } catch (err) {
         console.error("❌ Facebook Auth Error:", err);
-        done(err, null);
+        return done(err, null);
       }
     }
   )
@@ -115,13 +71,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
   try {
-    const pool = await connectDB();
-    const result = await pool
-      .request()
-      .input("id", sql.Int, id)
-      .query("SELECT id, username, email, role, avatar, authProvider FROM users WHERE id = @id");
-    
-    const user = result.recordset[0];
+    const user = await userModel.findById(id);
     done(null, user);
   } catch (err) {
     done(err, null);
