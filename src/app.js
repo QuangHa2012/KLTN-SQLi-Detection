@@ -67,6 +67,7 @@ app.engine('hbs', engine({
       return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
     },
     formatDate: (date) => new Date(date).toLocaleString("vi-VN"),
+    formatBD: (date) => new Date(date).toLocaleDateString("vi-VN"),
     range: (from, to) => {
       let arr = [];
       for (let i = from; i <= to; i++) arr.push(i);

@@ -8,6 +8,7 @@
   font-family: var.$font-primary;
 }
 
+
 /*header section */
 .header-section {
   position: fixed;   /* cố định */
@@ -661,6 +662,57 @@
     margin: 0 10px;
 }
 
+
+
+
+.input-group-pass {
+  position: relative;
+  width: 100%;
+}
+
+.input-group-pass .auth-form__input {
+  width: 100%;
+  padding: 10px 45px 10px 12px; /* chừa khoảng bên phải cho icon */
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  background-color: #fff;
+}
+
+.input-group-pass .auth-form__input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+
+.btn-toggle-pass {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #777;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.btn-toggle-pass:hover {
+  color: #000;
+}
+
+
+.btn-toggle-pass.active {
+  color: #007bff;
+}
+
 /* login section */
 
 /* body content */
@@ -762,6 +814,22 @@
 
 /*pagination */
 
+/*profile */
+.profile-btn {
+  min-width: 220px;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 0;
+  transition: all 0.2s ease;
+}
+
+.profile-btn:hover {
+  background-color: #000;
+  color: #fff;
+}
+/*profile */
+
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
@@ -793,6 +861,18 @@
   .search-bar .btn {
     font-size: 14px;
     padding: 8px;
+  }
+
+  .profile-btn {
+    width: 100%;
+  }
+
+  .input-group-pass .auth-form__input {
+    font-size: 14px;
+  }
+  .btn-toggle-pass {
+    font-size: 1rem;
+    right: 8px;
   }
 }
 /* ===== RESPONSIVE ===== */

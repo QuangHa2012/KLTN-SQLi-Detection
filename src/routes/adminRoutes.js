@@ -33,23 +33,24 @@ router.get('/users/:id', isAdmin, AdminController.userDetail);
 
 
 // Report routes
-router.get('/reports', reportController.showReportPage);
+router.get('/reports', isAdmin, reportController.showReportPage);
 
 // API JSON chart
-router.get('/api/revenue/day', reportController.revenueByDay);
-router.get('/api/products/best-selling', reportController.bestSellingProducts);
-router.get('/api/orders/status', reportController.orderStatusStats);
-router.get('/api/summary', reportController.summaryStats);
+router.get('/api/revenue/day', isAdmin, reportController.revenueByDay);
+router.get('/api/products/best-selling', isAdmin, reportController.bestSellingProducts);
+router.get('/api/orders/status', isAdmin, reportController.orderStatusStats);
+router.get('/api/summary', isAdmin, reportController.summaryStats);
+router.get('/api/export/excel', isAdmin, reportController.exportExcel);
 
 
 
 // Discount management routes
-router.get('/discounts', discountController.list);
-router.get('/discounts/add', discountController.addPage);
-router.post('/discounts/add', discountController.add);
-router.get('/discounts/edit/:id', discountController.editPage);
-router.post('/discounts/edit/:id', discountController.update);
-router.get('/discounts/delete/:id', discountController.delete);
+router.get('/discounts', isAdmin, discountController.list);
+router.get('/discounts/add', isAdmin, discountController.addPage);
+router.post('/discounts/add', isAdmin, discountController.add);
+router.get('/discounts/edit/:id', isAdmin, discountController.editPage);
+router.post('/discounts/edit/:id', isAdmin, discountController.update);
+router.get('/discounts/delete/:id', isAdmin, discountController.delete);
 
 
 

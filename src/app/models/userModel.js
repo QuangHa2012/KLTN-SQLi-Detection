@@ -124,6 +124,29 @@ class UserModel {
         return result.recordset[0];
     }
 
+    // Cập nhật thông tin user
+    async updateProfile(id, { username, email, phone, address, gender, birthday }) {
+        const pool = await connectDB();
+        await pool.request()
+            .input('id', sql.Int, id)
+            .input('username', sql.NVarChar, username)
+            .input('email', sql.NVarChar, email)
+            .input('phone', sql.NVarChar, phone)
+            .input('address', sql.NVarChar, address)
+            .input('gender', sql.NVarChar, gender)
+            .input('birthday', sql.Date, birthday || null)
+            .query(`
+                UPDATE users
+                SET username = @username,
+                    email = @email,
+                    phone = @phone,
+                    address = @address,
+                    gender = @gender,
+                    birthday = @birthday
+                WHERE id = @id
+            `);
+    }
+
 }
 
 module.exports = new UserModel();

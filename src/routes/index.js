@@ -5,6 +5,7 @@ const adminRouter = require('./adminRoutes');
 const cartRouter = require('./cartRoutes');
 const paymentRouter = require('./paymentRoutes');
 const orderRouter = require('./orderRoutes');
+const profileRouter = require('./profileRoutes');
 
 
 function route(app) {
@@ -14,6 +15,7 @@ function route(app) {
     app.use('/admin',adminRouter); //tất cả route liên quan đến admin sẽ đi qua adminRoutes.js
     app.use('/accounts',accountRouter); //tất cả route liên quan đến accounts sẽ đi qua accountRoutes.js
     app.use('/products',productRouter); //tất cả route liên quan đến products sẽ đi qua productRoutes.js
+    app.use('/profile',profileRouter); //tất cả route liên quan đến profile sẽ đi qua profileRoutes.js
     app.use('/',siteRouter);
 }
 
