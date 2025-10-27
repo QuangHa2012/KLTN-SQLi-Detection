@@ -1,4 +1,5 @@
 const Product = require('../models/productModel');
+const ProductReview = require("../models/productReviewModel");
 
 class ProductController {
     // Hiển thị danh sách sản phẩm GET /products
@@ -211,23 +212,93 @@ class ProductController {
     async detail(req, res) {
         try {
             const id = parseInt(req.params.id);
-            const product = await Product.getProductWithImages(id);
+            if (isNaN(id)) return res.status(400).render("404", { message: "ID sản phẩm không hợp lệ" });
 
-            if (!product) {
-                return res.status(404).render('404', { message: 'Sản phẩm không tồn tại' });
+            const product = await Product.getProductWithImages(id);
+            if (!product) return res.status(404).render("404", { message: "Sản phẩm không tồn tại" });
+
+            const reviews = await ProductReview.getReviewsByProductId(id);
+            const totalReviews = reviews.length;
+            const averageRating = totalReviews > 0
+                ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / totalReviews).toFixed(2)
+                : 0;
+
+            // Lấy review của user hiện tại (nếu có)
+            let userReview = null;
+            if (req.session.user) {
+                userReview = await ProductReview.getUserReview(id, req.session.user.id);
             }
 
-            res.render('productDetail', { product });
+            res.render("productDetail", {
+                product,
+                reviews,
+                totalReviews,
+                averageRating,
+                user: req.session.user || null,
+                userReview // truyền xuống view
+            });
         } catch (error) {
-            console.error(error);
+            console.error("❌ Lỗi khi lấy chi tiết sản phẩm:", error);
+            res.status(500).render("500", { message: "Lỗi server khi tải chi tiết sản phẩm" });
+        }
+    }
+
+
+    // [POST] /products/:id/reviews
+    async addReview(req, res) {
+        try {
+            const productId = parseInt(req.params.id);
+            const userId = req.session.user?.id;
+            const { rating, comment } = req.body;
+
+            if (!userId) return res.redirect("/accounts/login");
+
+            const existing = await ProductReview.getUserReview(productId, userId);
+
+            if (existing) {
+                // Cập nhật nếu đã có
+                await ProductReview.updateReview(productId, userId, rating, comment);
+            } else {
+                // Thêm mới
+                await ProductReview.addReview(productId, userId, rating, comment);
+            }
+
+            res.redirect(`/products/${productId}`);
+        } catch (error) {
+            console.error("❌ Lỗi khi thêm/cập nhật đánh giá:", error);
             res.status(500).send("Lỗi server");
+        }
+    }
+
+    // [POST] /products/reviews/:id/delete
+    async deleteReview(req, res) {
+        try {
+            // Kiểm tra đăng nhập
+            if (!req.session.user) {
+                return res.redirect('/accounts/login');
+            }
+
+            const reviewId = parseInt(req.params.id);
+            const userId = req.session.user.id;
+            const role = req.session.user.role; // 'admin' hoặc 'user'
+
+            const deleted = await ProductReview.deleteReview(reviewId, userId, role);
+
+            if (deleted) {
+                res.redirect(req.get('referer') || '/products');
+            } else {
+                res.status(403).send('Bạn không có quyền xóa đánh giá này.');
+            }
+        } catch (err) {
+            console.error('❌ Lỗi xóa đánh giá:', err);
+            res.status(500).send('Lỗi máy chủ khi xóa đánh giá.');
         }
     }
 
     // GET /products/search?q=...&page=...
     async search(req, res) {
         try {
-            const keyword = req.query.q || "";
+            const keyword = req.query.q || '';
             const page = parseInt(req.query.page) || 1;
             const limit = 8; // số sản phẩm mỗi trang
 
@@ -241,7 +312,7 @@ class ProductController {
             });
         } catch (err) {
             console.error(err);
-            res.status(500).send("Lỗi server");
+            res.status(500).send('Lỗi server');
         }
     }
 }

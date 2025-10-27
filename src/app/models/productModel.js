@@ -286,6 +286,18 @@ class ProductModel {
         };
     }
 
+    async updateAverageRating(productId, avgRating) {
+        const pool = await connectDB();
+        await pool.request()
+            .input("id", sql.Int, productId)
+            .input("avgRating", sql.Float, avgRating)
+            .query(`
+                UPDATE Products
+                SET averageRating = @avgRating
+                WHERE id = @id
+            `);
+    }
+
 }
 
 module.exports = new ProductModel();//bên controller gọi hàm này

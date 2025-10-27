@@ -60,6 +60,7 @@ app.engine('hbs', engine({
     or: (a, b) => a || b,
     gt: (a, b) => a > b,
     lt: (a, b) => a < b,
+    lte: (a, b) => a <= b,
     add: (a, b) => a + b,
     sub: (a, b) => a - b,
     multiply: (a, b) => a * b,
@@ -84,6 +85,15 @@ app.engine('hbs', engine({
     },
     ifIndexZero: function(index) {
         return index === 0 ? "active" : "";
+    },
+    rangeStar: (from, to, step = 1) => {
+      let arr = [];
+      if (step > 0) {
+        for (let i = from; i <= to; i += step) arr.push(i);
+      } else {
+        for (let i = from; i >= to; i += step) arr.push(i);
+      }
+      return arr;
     },
   }
 }));
