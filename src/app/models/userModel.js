@@ -124,27 +124,36 @@ class UserModel {
         return result.recordset[0];
     }
 
-    // Cập nhật thông tin user
-    async updateProfile(id, { username, email, phone, address, gender, birthday }) {
+    // Cập nhật thông tin hồ sơ
+    async updateProfile(id, { username, email, phone, address, gender, birthday, avatar }) {
         const pool = await connectDB();
-        await pool.request()
-            .input('id', sql.Int, id)
-            .input('username', sql.NVarChar, username)
-            .input('email', sql.NVarChar, email)
-            .input('phone', sql.NVarChar, phone)
-            .input('address', sql.NVarChar, address)
-            .input('gender', sql.NVarChar, gender)
-            .input('birthday', sql.Date, birthday || null)
-            .query(`
-                UPDATE users
-                SET username = @username,
-                    email = @email,
-                    phone = @phone,
-                    address = @address,
-                    gender = @gender,
-                    birthday = @birthday
-                WHERE id = @id
-            `);
+        let query = `
+            UPDATE users
+            SET username = @username,
+                email = @email,
+                phone = @phone,
+                address = @address,
+                gender = @gender,
+                birthday = @birthday
+        `;
+
+        if (avatar) {
+            query += `, avatar = @avatar`;
+        }
+
+        query += ` WHERE id = @id`;
+
+        const request = pool.request();
+        request.input('id', sql.Int, id);
+        request.input('username', sql.NVarChar, username);
+        request.input('email', sql.NVarChar, email);
+        request.input('phone', sql.NVarChar, phone);
+        request.input('address', sql.NVarChar, address);
+        request.input('gender', sql.NVarChar, gender);
+        request.input('birthday', sql.Date, birthday || null);
+        if (avatar) request.input('avatar', sql.NVarChar, avatar);
+
+        await request.query(query);
     }
 
 }

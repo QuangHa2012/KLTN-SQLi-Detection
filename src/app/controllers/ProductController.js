@@ -309,7 +309,7 @@ class ProductController {
                 q: keyword,
                 totalPages,
                 currentPage
-            });
+            }); 
         } catch (err) {
             console.error(err);
             res.status(500).send('Lỗi server');

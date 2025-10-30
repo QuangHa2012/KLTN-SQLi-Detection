@@ -1,46 +1,103 @@
 <div class="container py-5">
-  <div class="mx-auto" style="max-width: 700px;">
+  <div class="mx-auto" style="max-width: 800px;">
     <h2 class="fw-semibold mb-4 text-center">Hồ sơ cá nhân</h2>
 
-    <div class="bg-white p-4 border">
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Tên:</div>
-        <div class="col-8">{{user.username}}</div>
+    <div class="bg-white p-4 border row align-items-center">
+      <!-- Cột trái: Avatar -->
+      <div class="col-md-4 text-center mb-4 mb-md-0 profile-avatar">
+        <img
+          src="{{#if user.avatar}}{{user.avatar}}{{else}}/images/default-avatar.png{{/if}}"
+          alt="Avatar"
+          class="avatar-img mb-3"
+        />
+
+        <form action="/profile/upload-avatar" method="POST" enctype="multipart/form-data">
+          <label class="btn btn-outline-secondary btn-sm px-3 avatar-btn avatar-btn">
+            <i class="bi bi-upload me-1"></i> Đổi ảnh đại diện
+            <input type="file" name="avatar" accept="image/*" hidden onchange="this.form.submit()">
+          </label>
+        </form>
+
+        {{#if user.avatar}}
+        <form action="/profile/delete-avatar" method="POST" class="mt-2 d-inline-block">
+          <button type="submit" class="btn btn-outline-danger btn-sm avatar-btn">
+            <i class="bi bi-trash me-1"></i> Xóa ảnh
+          </button>
+        </form>
+        {{/if}}
       </div>
 
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Email:</div>
-        <div class="col-8">{{user.email}}</div>
-      </div>
+      <!-- Cột phải: Thông tin người dùng -->
+      <div class="col-md-8">
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Tên:</div>
+          <div class="col-8">{{user.username}}</div>
+        </div>
 
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Giới tính:</div>
-        <div class="col-8">
-            {{#if (eq user.gender "male")}}Nam
-            {{else if (eq user.gender "female")}}Nữ
-            {{else if (eq user.gender "other")}}Khác
-            {{else}}Chưa cập nhật{{/if}}</div>
-      </div>
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Email:</div>
+          <div class="col-8">{{user.email}}</div>
+        </div>
 
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Ngày sinh:</div>
-        <div class="col-8">{{formatBD user.birthday}}</div>
-      </div>
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Giới tính:</div>
+          <div class="col-8">
+              {{#if (eq user.gender "male")}}Nam
+              {{else if (eq user.gender "female")}}Nữ
+              {{else if (eq user.gender "other")}}Khác
+              {{else}}Chưa cập nhật{{/if}}</div>
+        </div>
 
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Số điện thoại:</div>
-        <div class="col-8">{{user.phone}}</div>
-      </div>
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Ngày sinh:</div>
+          <div class="col-8">{{formatBD user.birthday}}</div>
+        </div>
 
-      <div class="row mb-3">
-        <div class="col-4 fw-bold text-secondary">Địa chỉ:</div>
-        <div class="col-8">{{user.address}}</div>
-      </div>
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Số điện thoại:</div>
+          <div class="col-8">{{user.phone}}</div>
+        </div>
 
-      <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-4">
-        <a href="/profile/edit" class="btn btn-dark px-4 profile-btn"><i class="bi bi-pencil-square me-1"></i> Chỉnh sửa thông tin</a>
-        <a href="/profile/change-password" class="btn btn-outline-dark px-4 profile-btn"><i class="bi bi-key me-1"></i> Đổi mật khẩu</a>
+        <div class="row mb-3">
+          <div class="col-4 fw-bold text-secondary">Địa chỉ:</div>
+          <div class="col-8">{{user.address}}</div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row justify-content-between gap-3 mt-4">
+          <a href="/profile/edit" class="btn btn-dark px-4 profile-btn"><i class="bi bi-pencil-square me-1"></i> Chỉnh sửa thông tin</a>
+          {{#if (eq user.authProvider "local")}}
+          <a href="/profile/change-password" class="btn btn-outline-dark px-4 profile-btn"><i class="bi bi-key me-1"></i> Đổi mật khẩu</a>
+          {{/if}}
+        </div>
       </div>
     </div>
   </div>
 </div>
+
+<style>
+.profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.avatar-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%; /* làm tròn */
+  object-fit: cover;
+  border: 3px solid #f0f0f0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.avatar-img:hover {
+  transform: scale(1.05);
+}
+
+.avatar-btn {
+  border-radius: 10px;
+  font-weight: 500;
+}
+  
+</style>

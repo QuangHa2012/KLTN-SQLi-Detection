@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname,'public')));
 
 
 
+
 //xử lý dữ liệu từ form gửi lên
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
