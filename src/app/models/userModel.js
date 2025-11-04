@@ -1,4 +1,5 @@
 const { sql, connectDB } = require('../../config/db/db');
+const crypto = require('crypto');
 
 class UserModel {
     // Tạo user mới (có kiểm tra trùng)
@@ -70,10 +71,10 @@ class UserModel {
         const pool = await connectDB();
         await pool.request()
             .input('id', sql.Int, id)
-            .input('password', sql.NVarChar, newHashedPassword)
+            .input('password', sql.VarChar, newHashedPassword) // Dùng VarChar thay vì NVarChar
             .query('UPDATE users SET password = @password WHERE id = @id');
 
-        console.log(`🔄 Đã cập nhật mật khẩu cho user ID: ${id}`);
+        console.log(` Đã cập nhật mật khẩu cho user ID: ${id}`);
     }
 
      // Tạo user mới từ đăng nhập xã hội
@@ -154,6 +155,67 @@ class UserModel {
         if (avatar) request.input('avatar', sql.NVarChar, avatar);
 
         await request.query(query);
+    }
+
+     //  Tạo token reset password (UTC-based)
+    async createResetToken(email) {
+        const pool = await connectDB();
+        const token = crypto.randomBytes(32).toString('hex');
+
+        // SQL tự tính thời gian hết hạn theo UTC: GETUTCDATE()
+        const result = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .input('token', sql.NVarChar, token)
+            .query(`
+                UPDATE users
+                SET resetToken = @token,
+                    resetTokenExpiry = DATEADD(MINUTE, 15, GETUTCDATE())
+                WHERE email = @email
+                AND (authProvider IS NULL OR authProvider = 'local');
+
+                SELECT @@ROWCOUNT AS affected;
+            `);
+
+        // rowsAffected kiểm tra xem có update được hàng không
+        const affected = result.recordset[0]?.affected || 0;
+        if (affected === 0) {
+            throw new Error('Không thể tạo token (tài khoản không phải local)');
+        }
+
+        console.log(' Token tạo:', token, ' / rowsAffected:', rowsAffected);
+
+        return token;
+    }
+
+    // Kiểm tra token hợp lệ
+    async findByResetToken(token) {
+        if (!token) return null;
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('token', sql.NVarChar, token)
+            .query(`
+                SELECT * FROM users
+                WHERE resetToken = @token
+                AND resetTokenExpiry IS NOT NULL
+                AND resetTokenExpiry > GETUTCDATE()
+            `);
+        console.log(' findByResetToken result count:', result.recordset.length);
+        return result.recordset[0] || null;
+    }
+
+    // Xóa token sau khi reset
+    async clearResetToken(id) {
+        if (!id) return;
+
+        const pool = await connectDB();
+        await pool.request()
+            .input('id', sql.Int, id)
+            .query(`
+                UPDATE users
+                SET resetToken = NULL,
+                    resetTokenExpiry = NULL
+                WHERE id = @id
+            `);
     }
 
 }

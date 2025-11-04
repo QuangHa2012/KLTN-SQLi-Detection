@@ -1,0 +1,77 @@
+<div class="auth-form container">
+    <div class="auth-form__container">
+        <h2>Đặt lại mật khẩu</h2>
+        <form method="POST" action="/accounts/reset">
+            <input type="hidden" name="token" value="{{token}}">
+            <input type="password" name="password" placeholder="Mật khẩu mới" required>
+            <input type="password" name="confirmPassword" placeholder="Xác nhận mật khẩu" required>
+        <button type="submit">Đặt lại mật khẩu</button>
+        </form>
+        {{#if error}}<p style="color:red">{{error}}</p>{{/if}}
+        {{#if success}}<p style="color:green">{{success}}</p>{{/if}}
+    </div>
+</div>
+
+
+<style>
+
+
+.auth-form__container h2 {
+    color: #111;
+    font-size: 24px;
+    margin-bottom: 25px;
+    font-weight: 500;
+}
+
+.auth-form__container form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-form__container input[type="password"] {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 0;
+    font-size: 15px;
+    background-color: #fafafa;
+    transition: all 0.3s ease;
+
+}
+
+.auth-form__container input[type="password"]:focus {
+    border-color: #000;
+    background-color: #fff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+}
+
+.auth-form__container button {
+    padding: 12px;
+    background-color: #000;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    border-radius: 0;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.auth-form__container button:hover {
+    background-color: #333;
+}
+
+.auth-form__container p {
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.auth-form__container p[style*="color:red"] {
+    color: #d90429 !important;
+}
+
+.auth-form__container p[style*="color:green"] {
+    color: #2b9348 !important;
+}
+
+</style>

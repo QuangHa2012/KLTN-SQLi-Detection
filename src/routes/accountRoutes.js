@@ -18,4 +18,10 @@ router.get('/google/callback', accountController.googleCallback);
 router.get('/facebook', accountController.facebookLogin);
 router.get('/facebook/callback', accountController.facebookCallback);
 
+router.get('/forgot', accountController.forgotPage);
+router.post('/forgot', accountController.handleForgot);
+
+router.get('/reset', accountController.resetPage);
+router.post('/reset', accountController.handleReset);
+
 module.exports = router;

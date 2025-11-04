@@ -440,6 +440,7 @@
 /* login section */
 .auth-form {
     max-width: 650px;
+    padding-top: 14px;
     
     margin: 0 auto;
 }
@@ -470,17 +471,19 @@
 
 .auth-form__input {
     width: 100%;
-    padding: 0 12px;
+    padding: 4px 12px;
     margin-top: 16px;
-    font-size: 1.4rem;
+    font-size: 15px;
     height: 40px;
-    border: 1px solid #ededed;
+    border: 1px solid #ccc;
     border-radius: 2px;
     outline: none;
+    background-color: #fafafa;
 }
 
 .auth-form__input:focus {
     border-color: #888;
+    background-color: #fff;
 }
 
 .auth-form__aside {

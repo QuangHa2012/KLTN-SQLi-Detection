@@ -1,4 +1,6 @@
 const bcrypt = require('bcrypt');
+const nodemailer = require('nodemailer');
+const crypto = require('crypto');
 const userModel = require('../models/userModel');
 const passport = require('../../config/passport');
 
@@ -141,6 +143,90 @@ class AccountController {
             res.redirect("/");
             });
         })(req, res, next);
+    }
+
+    // GET /accounts/forgot
+    forgotPage(req, res) {
+        res.render('accounts/forgot');
+    }
+
+    // POST /accounts/forgot
+    async handleForgot(req, res) {
+        const { email } = req.body;
+        try {
+            const user = await userModel.findUserByUsernameOrEmail(email, 'local');
+            if (!user) {
+                return res.render('accounts/forgot', { error: 'Email không tồn tại trong hệ thống!' });
+            }
+
+            if (user.authProvider && user.authProvider !== 'local') {
+                return res.render('accounts/forgot', { 
+                    error: 'Tài khoản này đăng nhập bằng Google, không thể đặt lại mật khẩu local!'
+                });
+            }
+
+            const token = await userModel.createResetToken(email);
+            console.log(" Token được tạo:", token);
+            const resetLink = `http://localhost:3000/accounts/reset?token=${token}`;
+
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: 'hn657237@gmail.com',       // Thay bằng Gmail 
+                    pass: 'lvytfthlrazaosqb'          // App password, không phải mật khẩu thật
+                }
+            });
+
+            await transporter.sendMail({
+                to: email,
+                subject: 'Đặt lại mật khẩu',
+                html: `
+                    <h3>Yêu cầu đặt lại mật khẩu</h3>
+                    <p>Nhấn vào link bên dưới để đặt lại mật khẩu (hết hạn sau 15 phút):</p>
+                    <a href="${resetLink}">${resetLink}</a>
+                `
+            });
+
+            res.render('accounts/forgot', { success: 'Đã gửi link đặt lại mật khẩu qua email!' });
+        } catch (err) {
+            console.error(err);
+            res.render('accounts/forgot', { error: 'Có lỗi khi gửi email!' });
+        }
+    }
+
+    // GET /accounts/reset?token=...
+    async resetPage(req, res) {
+        const token = req.query.token;
+        if (!token) return res.render('accounts/reset', { error: 'Thiếu token!' });
+        res.render('accounts/reset', { token });
+    }
+
+    // POST /accounts/reset
+    async handleReset(req, res) {
+        const { token, password, confirmPassword } = req.body;
+        if (password !== confirmPassword)
+            return res.render('accounts/reset', { error: 'Mật khẩu không khớp!', token });
+
+        try {
+            const user = await userModel.findByResetToken(token);
+            if (!user) return res.render('accounts/reset', { error: 'Token không hợp lệ hoặc đã hết hạn!' });
+
+            if (user.authProvider && user.authProvider !== 'local') {
+                return res.render('accounts/reset', {
+                    error: `Tài khoản này được tạo bằng ${user.authProvider}. Vui lòng đăng nhập bằng ${user.authProvider}.`
+                });
+            }
+            
+            const hashed = await bcrypt.hash(password, 10);
+            await userModel.updatePassword(user.id, hashed);
+            await userModel.clearResetToken(user.id);
+
+            res.render('accounts/reset', { success: 'Đặt lại mật khẩu thành công!' });
+            res.redirect('/accounts/login');
+        } catch (err) {
+            console.error(err);
+            res.render('accounts/reset', { error: 'Có lỗi khi đặt lại mật khẩu!' });
+        }
     }
 
     
