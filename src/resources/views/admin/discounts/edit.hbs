@@ -1,5 +1,5 @@
-<div class="container mt-4">
-  <h2>✏️ Sửa quy tắc giảm giá</h2>
+<div class="container mt-4 admin-discount-edit">
+  <h2><i class="bi bi-pen"></i> Sửa quy tắc giảm giá</h2>
   <form method="POST" action="/admin/discounts/edit/{{discount.id}}" class="mt-3">
     <div class="mb-3">
       <label>Tổng tối thiểu (₫)</label>
@@ -9,11 +9,119 @@
       <label>Phần trăm giảm (%)</label>
       <input type="number" name="discountPercent" value="{{discount.discountPercent}}" class="form-control" required>
     </div>
-    <div class="mb-3">
-      <label>Kích hoạt?</label>
+    <div class="mb-3 form-check">
       <input type="checkbox" name="active" {{#if discount.active}}checked{{/if}}>
+      <label>Kích hoạt?</label>
     </div>
     <button type="submit" class="btn btn-success">Cập nhật</button>
     <a href="/admin/discounts" class="btn btn-secondary">Hủy</a>
   </form>
 </div>
+
+<style>
+/* --- Container tổng thể --- */
+.container.admin-discount-edit {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+    color: #333;
+    max-width: 600px;
+    margin-top: 30px;
+}
+
+.admin-discount-edit .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+
+/* Tiêu đề */
+.admin-discount-edit h2 {
+    font-weight: 600;
+    color: #222;
+    text-align: center;
+}
+
+/* Form control */
+.admin-discount-edit .form-control {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    transition: all 0.2s ease;
+}
+
+.admin-discount-edit .form-control:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.2);
+}
+
+/* Label */
+.admin-discount-edit label {
+    font-weight: 500;
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Checkbox custom */
+.admin-discount-edit .form-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.admin-discount-edit input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #28a745; /* màu xanh khi checked */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.admin-discount-edit input[type="checkbox"]:hover {
+    transform: scale(1.1);
+}
+
+/* Buttons */
+.admin-discount-edit .btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+/* Hover button */
+.admin-discount-edit .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    color: #fff;
+}
+
+.admin-discount-edit .btn-secondary:hover {
+    background-color: #5a5a5a;
+    color: #fff;
+}
+
+/* Khoảng cách giữa các input */
+.admin-discount-edit .mb-3 {
+    margin-bottom: 18px;
+}
+
+/* Responsive nhỏ */
+@media (max-width: 768px) {
+    .container.admin-discount-edit {
+        padding: 20px 15px;
+    }
+
+    .admin-discount-edit button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+</style>

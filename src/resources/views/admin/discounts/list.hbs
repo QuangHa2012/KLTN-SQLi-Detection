@@ -1,5 +1,5 @@
-<div class="container mt-4">
-  <h2 class="mb-4">🎁 Danh sách quy tắc giảm giá</h2>
+<div class="container mt-4 admin-discounts">
+  <h2 class="mb-4"><i class="bi bi-gift"></i> Danh sách quy tắc giảm giá</h2>
 
   <a href="/admin/discounts/add" class="btn btn-primary mb-3">+ Thêm quy tắc mới</a>
 
@@ -35,3 +35,108 @@
     </tbody>
   </table>
 </div>
+
+
+<style>
+/* --- Container tổng thể --- */
+.container.admin-discounts {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+    color: #333;
+    max-width: 900px;
+    margin-top: 30px;
+}
+
+/* Tiêu đề */
+.admin-discounts h2 {
+    font-weight: 600;
+    color: #222;
+    text-align: center;
+}
+
+/* Buttons */
+.admin-discounts .btn {
+    border-radius: 8px;
+    padding: 6px 14px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+/* Hover button */
+.admin-discounts .btn-primary:hover {
+    background-color: #0069d9;
+    color: #fff;
+}
+
+.admin-discounts .btn-warning:hover {
+    background-color: #e0a800;
+    color: #fff;
+}
+
+.admin-discounts .btn-danger:hover {
+    background-color: #c82333;
+    color: #fff;
+}
+
+/* Table */
+.admin-discounts table {
+    border-radius: 10px;
+    overflow: hidden;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.admin-discounts table th,
+.admin-discounts table td {
+    padding: 12px 15px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+/* Header table */
+.admin-discounts table thead th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+/* Hover row */
+.admin-discounts table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Status text */
+.admin-discounts .text-success {
+    color: #28a745 !important;
+}
+.admin-discounts .text-muted {
+    color: #6c757d !important;
+}
+
+/* Khoảng cách dưới table */
+.admin-discounts table {
+    margin-bottom: 20px;
+}
+
+/* Responsive nhỏ */
+@media (max-width: 768px) {
+    .container.admin-discounts {
+        padding: 20px 15px;
+    }
+
+    .admin-discounts .btn {
+        margin-bottom: 8px;
+        width: 100%;
+    }
+
+    .admin-discounts table th,
+    .admin-discounts table td {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+}
+
+</style>

@@ -95,20 +95,17 @@ class AdminController {
     async userDetail(req, res) {
         try {
             let userId = req.params.id;
+            const page = parseInt(req.query.page) || 1;
+            const limit = 5;
+            const offset = (page - 1) * limit;
             let pool = await connectDB();
 
-            // Lấy thông tin user
+            // --- Lấy thông tin user ---
             let userResult = await pool.request()
                 .input("id", sql.Int, userId)
                 .query(`
                     SELECT 
-                        id, 
-                        username, 
-                        email,
-                        role, 
-                        authProvider,
-                        avatar,
-                        createdAt
+                        id, username, email, role, authProvider, avatar, createdAt
                     FROM Users 
                     WHERE id=@id
                 `);
@@ -117,7 +114,7 @@ class AdminController {
             }
             let user = userResult.recordset[0];
 
-            // Lấy giỏ hàng (lấy giỏ mới nhất)
+            // --- Lấy giỏ hàng mới nhất ---
             let cartResult = await pool.request()
                 .input("userId", sql.Int, userId)
                 .query("SELECT TOP 1 id, createdAt FROM Carts WHERE user_id=@userId ORDER BY createdAt DESC");
@@ -137,18 +134,28 @@ class AdminController {
                 cartItems = itemsResult.recordset;
             }
 
-            // Lấy danh sách đơn hàng của user
+            // --- Lấy tổng số đơn hàng ---
+            const totalOrdersResult = await pool.request()
+                .input("userId", sql.Int, userId)
+                .query("SELECT COUNT(*) AS total FROM Orders WHERE user_id=@userId");
+            const totalOrders = totalOrdersResult.recordset[0].total;
+            const totalPages = Math.ceil(totalOrders / limit);
+
+            // --- Lấy danh sách đơn hàng theo phân trang ---
             let ordersResult = await pool.request()
                 .input("userId", sql.Int, userId)
+                .input("offset", sql.Int, offset)
+                .input("limit", sql.Int, limit)
                 .query(`
                     SELECT id, total, status, createdAt
                     FROM Orders
                     WHERE user_id=@userId
                     ORDER BY createdAt DESC
+                    OFFSET @offset ROWS FETCH NEXT @limit ROWS ONLY
                 `);
             let orders = ordersResult.recordset;
 
-            // Lấy chi tiết sản phẩm từng đơn hàng
+            // --- Lấy chi tiết sản phẩm từng đơn hàng ---
             for (let order of orders) {
                 let items = await pool.request()
                     .input("orderId", sql.Int, order.id)
@@ -161,11 +168,14 @@ class AdminController {
                 order.items = items.recordset;
             }
 
+            // --- Render ---
             res.render("admin/users/detail", {
                 user,
                 cart,
                 cartItems,
-                orders
+                orders,
+                currentPage: page,
+                totalPages
             });
 
         } catch (err) {
@@ -173,6 +183,7 @@ class AdminController {
             res.status(500).send("Lỗi server");
         }
     }
+
 
 
 }

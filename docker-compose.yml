@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # ----------------------------------------
+  # Dịch vụ SQL Server
+  # ----------------------------------------
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "Abc@12345"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql/data
+      - ./db:/var/opt/mssql/backup   # Mount thư mục backup
+    mem_limit: 4g
+
+  # ----------------------------------------
+  # Dịch vụ Node.js
+  # ----------------------------------------
+  nodeapp:
+    build: .
+    container_name: nodeapp
+    restart: always
+    ports:
+      - "8080:3000"
+    depends_on:
+      - sqlserver
+    environment:
+      DB_SERVER: sqlserver
+      DB_USER: sa
+      DB_PASSWORD: Abc@12345
+      DB_NAME: mssql
+      DB_PORT: 1433
+      PORT: 3000
+      SESSION_SECRET: secret_key
+      MOMO_PARTNER_CODE: MOMO
+      MOMO_ACCESS_KEY: F8BBA842ECF85
+      MOMO_SECRET_KEY: K951B6PE1waDMi640xX08PD3vg6EkVlz
+      MOMO_API_URL: https://test-payment.momo.vn/v2/gateway/api/create
+      MOMO_RETURN_URL: http://localhost:3000/payment/success 
+      MOMO_NOTIFY_URL: http://localhost:3000/payment/momo-notify
+      GOOGLE_CLIENT_ID: 23414169727-ldci5ef63mrleqgn9g029ucmkomqs74a.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      FB_CLIENT_ID: 1184213967143009    
+      FB_CLIENT_SECRET: 882ba0592f1bc320928cddc9ecc96d89
+
+volumes:
+  sqlserver_data:

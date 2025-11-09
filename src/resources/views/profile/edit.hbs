@@ -1,26 +1,26 @@
 <div class="container py-5">
-  <div class="mx-auto" style="max-width: 700px;">
-    <h2 class="fw-semibold mb-4 text-center">Chỉnh sửa thông tin</h2>
+  <div class="mx-auto profile-edit-card p-4">
+    <h2 class="fw-semibold mb-4 text-center profile-edit-title">Chỉnh sửa thông tin</h2>
 
-    <form action="/profile/edit" method="POST" class="bg-white p-4 border">
+    <form action="/profile/edit" method="POST" class="bg-white p-4 border rounded-3 profile-edit-form">
       <div class="mb-3">
         <label class="form-label fw-semibold">Tên người dùng</label>
-        <input type="text" name="username" value="{{user.username}}" class="form-control" required>
+        <input type="text" name="username" value="{{user.username}}" class="form-control rounded-2" required>
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-semibold">Email</label>
-        <input type="email" name="email" value="{{user.email}}" class="form-control">
+        <input type="email" name="email" value="{{user.email}}" class="form-control rounded-2">
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-semibold">Số điện thoại</label>
-        <input type="text" name="phone" value="{{user.phone}}" class="form-control">
+        <input type="text" name="phone" value="{{user.phone}}" class="form-control rounded-2">
       </div>
 
       <div class="mb-3">
         <label class="form-label fw-semibold">Địa chỉ</label>
-        <input type="text" name="address" value="{{user.address}}" class="form-control">
+        <input type="text" name="address" value="{{user.address}}" class="form-control rounded-2">
       </div>
 
       <div class="mb-3">
@@ -61,11 +61,11 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Ngày sinh</label>
-        <div class="d-flex gap-2 flex-wrap justify-content-space-around">
-          <select id="day" name="day" class="form-select border border-secondary mr-3" required></select>
-          <select id="month" name="month" class="form-select border border-secondary mr-3" required></select>
-          <select id="year" name="year" class="form-select border border-secondary" required></select>
+        <label class="form-label fw-semibold">Ngày sinh</label>
+        <div class="d-flex gap-2 flex-wrap birthday-selects">
+          <select id="day" name="day" class="form-select rounded-2 mr-3" required></select>
+          <select id="month" name="month" class="form-select rounded-2 mr-3" required></select>
+          <select id="year" name="year" class="form-select rounded-2" required></select>
         </div>
       </div>
 
@@ -78,21 +78,43 @@
 </div>
 
 <style>
-  .form-select {
-    border-radius: 6px !important;
-    padding: 8px;
-    min-width: 120px;
-  }
+.profile-edit-card {
+  max-width: 700px;
+  background: #fdfdfd;
+  border-radius: 20px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
 
-  label.form-label {
-    font-weight: 600;
-  }
+.profile-edit-title {
+  background: #cccfd1;
+  padding: 12px 0;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  font-weight: 600;
+}
 
-  @media (max-width: 576px) {
-    .form-select {
-      width: 100%;
-    }
+.profile-edit-form input,
+.profile-edit-form select {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+}
+
+.profile-edit-form input:focus,
+.profile-edit-form select:focus {
+  border-color: #495057;
+  box-shadow: 0 0 0 0.15rem rgba(0,0,0,0.05);
+}
+
+.birthday-selects .form-select {
+  min-width: 100px;
+}
+
+@media (max-width: 576px) {
+  .birthday-selects .form-select {
+    min-width: 100%;
   }
+}
 </style>
 <script>
   // Lấy ngày sinh từ user nếu có

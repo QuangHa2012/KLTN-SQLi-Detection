@@ -81,9 +81,29 @@ class ProductController {
     // [GET] /admin/products
     async index(req, res) {
         try {
-            const products = await Product.getAllProducts();
-            res.render('admin/products/index', { products });
+            const page = parseInt(req.query.page) || 1;
+            const limit = 8;
+            const q = req.query.q ? req.query.q.trim() : "";
+
+            let data;
+
+            // Nếu có từ khóa tìm kiếm thì dùng searchProducts
+            if (q) {
+                data = await Product.searchProducts(q, page, limit);
+            } else {
+                data = await Product.getProductsPaginated(page, limit);
+            }
+
+            const totalPages = Math.ceil(data.total / limit);
+
+            res.render('admin/products/index', {
+                products: data.products,
+                currentPage: page,
+                totalPages,
+                q // giữ lại từ khóa để hiển thị trong ô tìm kiếm
+            });
         } catch (err) {
+            console.error(err);
             res.status(500).send('Lỗi khi lấy danh sách sản phẩm');
         }
     }

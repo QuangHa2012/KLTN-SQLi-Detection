@@ -1,4 +1,4 @@
-<div class="container mt-5">
+<div class="container mt-5 order-detail">
   <h2 class="mb-4">Chi tiết đơn hàng #{{order.id}}</h2>
   
   <div class="card p-3 mb-4">
@@ -54,3 +54,134 @@
     <a href="/orders" class="btn btn-secondary">Quay lại danh sách</a>
   </div>
 </div>
+
+
+<style>
+/* --- Trang Chi tiết đơn hàng --- */
+.container.order-detail {
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #333;
+  margin-top: 40px;
+}
+
+/* Tiêu đề */
+.order-detail h2 {
+  text-align: center;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 25px;
+}
+
+.order-detail h4 {
+  font-weight: 600;
+  margin-top: 35px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+/* Thẻ thông tin đơn */
+.order-detail .card {
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.order-detail .card p {
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+/* Badge trạng thái */
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.badge-success {
+  background-color: #28a745 !important;
+}
+
+.badge-warning {
+  background-color: #ffc107 !important;
+  color: #222;
+}
+
+.badge-danger {
+  background-color: #dc3545 !important;
+}
+
+.badge-secondary {
+  background-color: #6c757d !important;
+}
+
+/* Bảng sản phẩm */
+.order-detail .table {
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+}
+
+.order-detail .table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.order-detail .table td {
+  text-align: center;
+  vertical-align: middle;
+  font-size: 15px;
+}
+
+
+
+/* Nút */
+.order-detail .btn {
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 15px;
+  transition: all 0.2s ease;
+}
+
+.order-detail .btn-warning {
+  background-color: #ffc107;
+  border: none;
+  color: #222;
+}
+
+.order-detail .btn-warning:hover {
+  background-color: #e0a800;
+}
+
+.order-detail .btn-danger {
+  background-color: #dc3545;
+  border: none;
+}
+
+.order-detail .btn-danger:hover {
+  background-color: #c82333;
+}
+
+.order-detail .btn-secondary {
+  background-color: #6c757d;
+  border: none;
+}
+
+.order-detail .btn-secondary:hover {
+  background-color: #141618;
+}
+
+/* Khoảng cách nút */
+.order-detail form {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+</style>

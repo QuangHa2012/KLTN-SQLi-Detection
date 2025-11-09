@@ -1,29 +1,210 @@
-<div class="container-fluid ">
+<div class="container-fluid admin-products">
     <h2>Quản lý sản phẩm</h2>
-    <a href="/admin/products/create" class="btn btn-primary"><i class="bi bi-plus-square"></i> Thêm sản phẩm</a>
-    <a href="/admin/products/trash" class="btn btn-danger"><i class="bi bi-trash"></i>Sản phẩm đã xóa</a>
-    <table class="table">
+
+    <!-- Thanh công cụ -->
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <a href="/admin/products/create" class="btn btn-primary">
+                <i class="bi bi-plus-square"></i> Thêm sản phẩm
+            </a>
+            <a href="/admin/products/trash" class="btn btn-danger">
+                <i class="bi bi-trash"></i> Sản phẩm đã xóa
+            </a>
+        </div>
+
+        <!-- Form tìm kiếm -->
+        <form action="/admin/products" method="get" class="search-bar" style="max-width: 320px;">
+            <input type="text" name="q" placeholder="Tìm sản phẩm..." value="{{q}}">
+            <button type="submit">
+                <i class="bi bi-search"></i>
+            </button>
+        </form>
+    </div>
+
+    <!-- BẢNG SẢN PHẨM -->
+    <table class="table table-hover align-middle">
         <thead>
             <tr>
-                <th>ID</th><th>Ảnh</th><th>Tên</th><th>Giá</th><th>Kho</th><th></th>
+                <th>ID</th>
+                <th>Ảnh</th>
+                <th>Tên</th>
+                <th>Giá</th>
+                <th>Kho</th>
+                <th>Hành động</th>
             </tr>
         </thead>
         <tbody>
             {{#each products}}
             <tr>
                 <td>{{this.id}}</td>
-                <td><img src="{{this.img}}" alt="{{this.name}}" style="width: 50px; height: auto;"></td>
+                <td><img src="{{this.img}}" alt="{{this.name}}" class="product-img"></td>
                 <td>{{this.name}}</td>
                 <td>{{this.price}}</td>
                 <td>{{this.stock}}</td>
-                <td>
-                    <a href="/admin/products/{{this.id}}/edit" class="btn btn-warning btn-sm">Sửa</a>
-                    <form method="POST" action="/admin/products/{{this.id}}/delete" style="display:inline;">
-                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
-                    </form>
+                <td class="action-cell">
+                    <div class="action-buttons">
+                        <a href="/admin/products/{{this.id}}/edit" class="btn btn-warning btn-sm">Sửa</a>
+                        <form method="POST" action="/admin/products/{{this.id}}/delete">
+                            <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {{/each}}
         </tbody>
     </table>
+
+    <!-- PHÂN TRANG -->
+    {{#if totalPages}}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {{#if (gt currentPage 1)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/products?page={{sub currentPage 1}}{{#if q}}&q={{q}}{{/if}}">Trước</a>
+            </li>
+            {{/if}}
+
+            {{#each (range 1 totalPages)}}
+            <li class="page-item {{#if (eq ../currentPage this)}}active{{/if}}">
+                <a class="page-link" href="/admin/products?page={{this}}{{#if ../q}}&q={{../q}}{{/if}}">{{this}}</a>
+            </li>
+            {{/each}}
+
+            {{#if (lt currentPage totalPages)}}
+            <li class="page-item">
+                <a class="page-link" href="/admin/products?page={{add currentPage 1}}{{#if q}}&q={{q}}{{/if}}">Sau</a>
+            </li>
+            {{/if}}
+        </ul>
+    </nav>
+    {{/if}}
 </div>
+
+
+<style>
+.admin-products {
+    background-color: #fff;
+    color: #333;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.admin-products h2 {
+    font-weight: 600;
+    color: #222;
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Nút */
+.admin-products a.btn {
+    margin-right: 10px;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+/* Bảng */
+.admin-products table {
+    width: 100%;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #fafafa;
+}
+
+/* Header */
+.admin-products thead tr {
+    background-color: #f1f3f5;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 14px;
+}
+
+.admin-products th, 
+.admin-products td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+/* Dòng sản phẩm */
+.admin-products tbody tr {
+    transition: all 0.2s ease;
+}
+.admin-products tbody tr:hover {
+    background-color: #f9f9f9;
+    transform: scale(1.01);
+}
+
+/* Ảnh */
+.product-img {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+/* Nút trong bảng */
+.admin-products .btn-sm {
+    margin-right: 5px;
+    transition: transform 0.1s ease;
+}
+.admin-products .btn-sm:hover {
+    transform: translateY(-2px);
+}
+
+/* Nút trong bảng */
+.admin-products .btn-sm {
+    margin-right: 5px;
+    transition: transform 0.1s ease;
+}
+.admin-products .btn-sm:hover {
+    transform: translateY(-2px);
+}
+
+
+/* --- Thanh tìm kiếm --- */
+.admin-products .search-bar {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    padding: 4px 8px;
+    transition: box-shadow 0.2s ease;
+}
+
+.admin-products .search-bar:focus-within {
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    border-color: #bbb;
+}
+
+.admin-products .search-bar input[type="text"] {
+    border: none;
+    background: transparent;
+    outline: none;
+    padding: 6px 10px;
+    flex: 1;
+    font-size: 15px;
+}
+
+.admin-products .search-bar button {
+    border: none;
+    background: #f8f9fa;
+    color: #000;
+    border-radius: 8px;
+    padding: 6px 12px;
+    /*transition: background 0.2s ease;*/
+}
+
+.admin-products .search-bar button:hover {
+    background: #e2e6ea;
+}
+
+
+
+</style>

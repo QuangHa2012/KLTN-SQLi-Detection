@@ -1,4 +1,4 @@
-<div class="container mt-4">
+<div class="container mt-4 admin-user-detail">
     <a href="/admin/users" class="btn btn-secondary mb-3">← Quay lại danh sách </a>
 
     <h2> Thông tin người dùng</h2>
@@ -77,11 +77,150 @@
             </div>
         </div>
         {{/each}}
+
+        <!-- PHÂN TRANG -->
+        {{#if totalPages}}
+        <nav aria-label="User order pagination">
+            <ul class="pagination justify-content-center mt-3">
+                {{#if (gt currentPage 1)}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{sub currentPage 1}}">Trước</a>
+                </li>
+                {{/if}}
+
+                {{#each (range 1 totalPages)}}
+                <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+                    <a class="page-link" href="?page={{this}}">{{this}}</a>
+                </li>
+                {{/each}}
+
+                {{#if (lt currentPage totalPages)}}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{add currentPage 1}}">Sau</a>
+                </li>
+                {{/if}}
+            </ul>
+        </nav>
+        {{/if}}
     {{else}}
         <p>User này chưa có đơn hàng nào.</p>
     {{/if}}
+
 </div>
 
 <style>
+/* --- Container tổng thể --- */
+.container.admin-user-detail {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+    color: #333;
+}
+
+/* Nút quay lại */
+.admin-user-detail a.btn-secondary {
+    border-radius: 8px;
+    padding: 6px 12px;
+    transition: all 0.2s ease;
+}
+.admin-user-detail a.btn-secondary:hover {
+    background-color: #5a5a5a;
+    color: #fff;
+}
+
+/* Tiêu đề */
+.admin-user-detail h2, 
+.admin-user-detail h3 {
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 15px;
+}
+
+/* Card thông tin user */
+.admin-user-detail .card {
+    border-radius: 10px;
+    box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    padding: 15px 20px;
+    background-color: #fafafa;
+}
+
+.admin-user-detail .card-header {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    font-size: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.admin-user-detail .card-body {
+    padding: 15px;
+}
+
+/* Badge trạng thái đơn hàng */
+.admin-user-detail .badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    background-color: #17a2b8; /* badge info */
+    color: #fff;
+}
+
+/* Bảng giỏ hàng và bảng đơn hàng */
+.admin-user-detail table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.05);
+}
+
+.admin-user-detail table th {
+    background-color: #f1f3f5;
+    font-weight: 600;
+    text-align: center;
+    padding: 10px;
+}
+
+.admin-user-detail table td {
+    padding: 8px 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.admin-user-detail table tbody tr:hover {
+    background-color: #f9f9f9;
+    transform: scale(1.01);
+    transition: 0.15s;
+}
+
+/* Ảnh sản phẩm */
+.admin-user-detail table img {
+    width: 60px;
+    height: auto;
+    border-radius: 6px;
+    object-fit: cover;
+    box-shadow: 0 0 3px rgba(0,0,0,0.1);
+}
+
+/* Card lịch sử đơn hàng */
+.admin-user-detail .card + .card {
+    margin-top: 15px;
+}
+
+/* Responsive nhỏ */
+@media (max-width: 768px) {
+    .admin-user-detail .d-flex {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .admin-user-detail table th, 
+    .admin-user-detail table td {
+        font-size: 13px;
+        padding: 6px 8px;
+    }
+}
 
 </style>
