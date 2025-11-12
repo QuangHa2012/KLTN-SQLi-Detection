@@ -1,0 +1,179 @@
+<div class="container mt-5 admin-orders">
+  <h2 class="mb-4  fw-semibold">Quản lý đơn hàng</h2>
+
+  <!-- Bộ lọc -->
+  <form method="GET" action="/admin/orders" class="filter-form d-flex align-items-center mb-4 justify-content-center flex-wrap">
+    <label class="me-2 fw-semibold">Lọc theo trạng thái:</label>
+    <select name="status" class="form-select form-select-sm me-3">
+      <option value="">Tất cả</option>
+      <option value="pending" {{#if (eq status "pending")}}selected{{/if}}>Chờ thanh toán</option>
+      <option value="paid" {{#if (eq status "paid")}}selected{{/if}}>Đã thanh toán</option>
+      <option value="shipping" {{#if (eq status "shipping")}}selected{{/if}}>Đang giao</option>
+      <option value="cancelled" {{#if (eq status "cancelled")}}selected{{/if}}>Đã hủy</option>
+      <option value="completed" {{#if (eq status "completed")}}selected{{/if}}>Hoàn tất</option>
+      <option value="failed" {{#if (eq status "failed")}}selected{{/if}}>Thanh toán thất bại</option>
+    </select>
+    <button type="submit" class="btn btn-primary btn-sm btn-filter-order">Lọc</button>
+  </form>
+
+  <!-- Bảng đơn hàng -->
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-light">
+        <tr>
+          <th>ID</th>
+          <th>Khách hàng</th>
+          <th>Ngày tạo</th>
+          <th>Tổng tiền</th>
+          <th>Trạng thái</th>
+          <th>Hành động</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each orders}}
+        <tr>
+          <td>#{{this.id}}</td>
+          <td>{{this.username}}</td>
+          <td>{{formatDate this.createdAt}}</td>
+          <td>{{formatPrice this.total}}</td>
+          <td>
+            {{#if (eq this.status "paid")}}
+              <span class="badge badge-success">Đã thanh toán</span>
+            {{else if (eq this.status "pending")}}
+              <span class="badge badge-warning">Chờ thanh toán</span>
+            {{else if (eq this.status "shipping")}}
+              <span class="badge badge-info">Đang giao</span>
+            {{else if (eq this.status "cancelled")}}
+              <span class="badge badge-secondary">Đã hủy</span>
+            {{else}}
+              <span class="badge badge-danger">Thanh toán thất bại</span>
+
+            {{/if}}
+          </td>
+          <td>
+            <a href="/admin/orders/{{this.id}}" class="btn btn-sm btn-info">Chi tiết</a>
+            <form action="/admin/orders/{{this.id}}/delete" method="POST" class="d-inline-block">
+              <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Xóa đơn này?')">Xóa</button>
+            </form>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PHÂN TRANG -->
+  {{#if totalPages}}
+  <div class="mt-5 pagination-wrapper">
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center">
+        <!-- Trang trước -->
+        {{#if (gt currentPage 1)}}
+        <li class="page-item">
+          <a class="page-link" 
+          href="/admin/orders?page={{sub currentPage 1}}{{#if status}}&status={{status}}{{/if}}">
+            Trước
+          </a>
+        </li>
+        {{/if}}
+
+        <!-- Các trang -->
+        {{#each (range 1 totalPages)}}
+        <li class="page-item {{#if (eq ../currentPage this)}}active{{/if}}">
+          <a class="page-link" 
+          href="/admin/orders?page={{this}}{{#if ../status}}&status={{../status}}{{/if}}">
+            {{this}}
+          </a>
+        </li>
+        {{/each}}
+
+        <!-- Trang sau -->
+        {{#if (lt currentPage totalPages)}}
+        <li class="page-item">
+          <a class="page-link" 
+          href="/admin/orders?page={{add currentPage 1}}{{#if status}}&status={{status}}{{/if}}">
+            Sau
+          </a>
+        </li>
+        {{/if}}
+      </ul>
+    </nav>
+  </div>
+  {{/if}}
+</div>
+
+
+<style>
+.admin-orders {
+  background: #fff;
+  border-radius: 10px;
+  padding: 25px 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #333;
+}
+
+.admin-orders h2 {
+    font-weight: 600;
+    color: #222;
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Bộ lọc */
+.filter-form {
+  background: #f9fafb;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-filter-order {
+    border-radius: 8px;
+}
+
+/* Badge trạng thái */
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+.badge-success { background-color: #28a745 !important; }
+.badge-warning { background-color: #ffc107 !important; color: #222; }
+.badge-danger { background-color: #dc3545 !important; }
+.badge-secondary { background-color: #6c757d !important; }
+.badge-info { background-color: #54ce8b !important; }
+
+/* Bảng */
+.table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #333;
+}
+
+.admin-orders form select {
+    display: inline-block;
+    width: 220px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    transition: border 0.2s ease;
+    margin-right: 10px;
+}
+
+
+/* Nút */
+.btn-info {
+  background-color: #17a2b8;
+  border: none;
+  color: white;
+}
+.btn-info:hover {
+  background-color: #138496;
+}
+.btn-danger {
+  border: none;
+}
+</style>

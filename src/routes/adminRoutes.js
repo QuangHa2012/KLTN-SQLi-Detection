@@ -4,6 +4,7 @@ const productController = require('../app/controllers/ProductController');
 const AdminController = require('../app/controllers/AdminController');
 const reportController = require('../app/controllers/ReportController');
 const discountController = require('../app/controllers/discountController');
+const orderAdminController = require('../app/controllers/orderAdminController');
 
 // Middleware check admin
 function isAdmin(req, res, next) {
@@ -41,6 +42,14 @@ router.get('/api/products/best-selling', isAdmin, reportController.bestSellingPr
 router.get('/api/orders/status', isAdmin, reportController.orderStatusStats);
 router.get('/api/summary', isAdmin, reportController.summaryStats);
 router.get('/api/export/excel', isAdmin, reportController.exportExcel);
+
+// Order management routes
+router.get('/orders', isAdmin, orderAdminController.listOrders);         
+router.get('/orders/:id', isAdmin, orderAdminController.orderDetail);     
+router.post('/orders/:id/status', isAdmin, orderAdminController.updateStatus);
+router.post('/orders/:id/delete', isAdmin, orderAdminController.deleteOrder);
+
+
 
 
 

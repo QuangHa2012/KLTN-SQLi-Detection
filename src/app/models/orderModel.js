@@ -45,6 +45,74 @@ class OrderModel {
         return result.rowsAffected[0] > 0;
     }
 
+    // Cập nhật trạng thái đơn hàng
+    async updateStatus(orderId, newStatus) {
+        let pool = await connectDB();
+        let result = await pool.request()
+            .input("orderId", sql.Int, orderId)
+            .input("status", sql.NVarChar, newStatus)
+            .query(`UPDATE Orders SET status=@status WHERE id=@orderId`);
+        return result.rowsAffected[0] > 0;
+    }
+
+    // Lấy chi tiết đơn hàng kèm items
+    async getOrderWithItems(orderId) {
+        let pool = await connectDB();
+
+        const orderResult = await pool.request()
+            .input("id", sql.Int, orderId)
+            .query("SELECT * FROM Orders WHERE id=@id");
+        const order = orderResult.recordset[0];
+
+        if (!order) return null;
+
+        const itemsResult = await pool.request()
+            .input("orderId", sql.Int, orderId)
+            .query(`
+                SELECT oi.quantity, oi.price, p.id as productId
+                FROM OrderItems oi
+                JOIN Products p ON oi.product_id = p.id
+                WHERE oi.order_id=@orderId
+            `);
+
+        order.items = itemsResult.recordset;
+        return order;
+    }
+
+
+    async markStockUpdated(orderId, value) {
+        const pool = await connectDB();
+        await pool.request()
+            .input("orderId", sql.Int, orderId)
+            .input("value", sql.Bit, value)
+            .query("UPDATE Orders SET stockUpdated = @value WHERE id = @orderId");
+    }
+
+    async getOrderWithItems(orderId) {
+        const pool = await connectDB();
+
+        const orderRes = await pool.request()
+            .input("id", sql.Int, orderId)
+            .query("SELECT * FROM Orders WHERE id = @id");
+
+        if (orderRes.recordset.length === 0) return null;
+        const order = orderRes.recordset[0];
+
+        const itemsRes = await pool.request()
+            .input("orderId", sql.Int, orderId)
+            .query(`
+                SELECT oi.product_id AS productId, oi.quantity, oi.price, p.name
+                FROM OrderItems oi
+                JOIN Products p ON oi.product_id = p.id
+                WHERE oi.order_id = @orderId
+            `);
+
+        order.items = itemsRes.recordset;
+        return order;
+    }
+
+
+
 }
 
 module.exports = new OrderModel();

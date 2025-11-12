@@ -298,6 +298,22 @@ class ProductModel {
             `);
     }
 
+    // Thay đổi số lượng trong kho
+    async changeStock(productId, delta) {
+        const pool = await connectDB();
+        await pool.request()
+            .input("productId", sql.Int, productId)
+            .input("delta", sql.Int, delta)
+            .query(`
+                UPDATE Products
+                SET stock = CASE 
+                    WHEN stock + @delta < 0 THEN 0
+                    ELSE stock + @delta
+                END
+                WHERE id = @productId
+            `);
+    }
+
 }
 
 module.exports = new ProductModel();//bên controller gọi hàm này

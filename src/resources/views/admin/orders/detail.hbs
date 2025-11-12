@@ -1,0 +1,165 @@
+<div class="container-fluid admin-order-detail">
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb-bar mb-3">
+    <a href="/admin/orders" class="back-link">
+      <i class="bi bi-arrow-left-circle"></i> Quay lại danh sách đơn hàng
+    </a>
+  </div>
+
+  <h2>Chi tiết đơn hàng #{{order.id}}</h2>
+  <p><strong>Khách hàng:</strong> {{order.username}} ({{order.email}})</p>
+  <p><strong>Tổng tiền:</strong> {{order.total}}₫</p>
+  <p><strong>Trạng thái hiện tại:</strong> 
+    <span class="status-badge status-{{order.status}}">{{orderStatus order.status}}</span>
+  </p>
+
+  <form action="/admin/orders/{{order.id}}/status" method="POST" class="mb-4">
+    <label for="status" class="form-label fw-bold">Cập nhật trạng thái:</label>
+    <select name="status" id="status" class="form-select">
+      <option value="pending" {{#if (eq order.status "pending")}}selected{{/if}}>Đang xử lý</option>
+      <option value="paid" {{#if (eq order.status "paid")}}selected{{/if}}>Đã thanh toán</option>
+      <option value="failed" {{#if (eq order.status "failed")}}selected{{/if}}>Thanh toán thất bại</option>
+      <option value="shipping" {{#if (eq order.status "shipping")}}selected{{/if}}>Đang giao</option>
+      <option value="completed" {{#if (eq order.status "completed")}}selected{{/if}}>Hoàn tất</option>
+      <option value="cancelled" {{#if (eq order.status "cancelled")}}selected{{/if}}>Đã hủy</option>
+    </select>
+    <button class="btn btn-success btn-sm ms-2">Cập nhật</button>
+  </form>
+
+  <hr>
+
+  <h4 class="mb-3">Sản phẩm trong đơn:</h4>
+  <table class="table table-hover align-middle">
+    <thead>
+      <tr>
+        <th>Ảnh</th>
+        <th>Tên sản phẩm</th>
+        <th>Số lượng</th>
+        <th>Giá</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each items}}
+      <tr>
+        <td><img src="{{this.img}}" alt="{{this.name}}"></td>
+        <td>{{this.name}}</td>
+        <td>{{this.quantity}}</td>
+        <td>{{this.price}}₫</td>
+      </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</div>
+
+
+<style>
+.admin-order-detail {
+    background-color: #fff;
+    color: #333;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+.admin-order-detail h2 {
+    font-weight: 600;
+    color: #222;
+    border-bottom: 2px solid #e5e5e5;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* breadcrumb */
+.breadcrumb-bar {
+    margin-bottom: 15px;
+}
+.back-link {
+    text-decoration: none;
+    color:#555;
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+.back-link:hover {
+    color: #0056b3;
+}
+.back-link i {
+    margin-right: 5px;
+    font-size: 1.1rem;
+    vertical-align: middle;
+    
+}
+
+/* trạng thái */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 8px;
+    color: #fff;
+    text-transform: capitalize;
+    font-size: 13px;
+    font-weight: 500;
+}
+.status-pending { background-color: #ffc107; }
+.status-paid { background-color: #0d6efd; }
+.status-shipping { background-color: #17a2b8; }
+.status-completed { background-color: #28a745; }
+.status-cancelled { background-color: #dc3545; }
+
+/* form */
+.admin-order-detail form select {
+    display: inline-block;
+    width: 220px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    transition: border 0.2s ease;
+}
+.admin-order-detail form select:focus {
+    border-color: #888;
+    outline: none;
+}
+.admin-order-detail button.btn {
+    padding: 7px 15px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: transform 0.1s ease, background 0.2s ease;
+}
+.admin-order-detail button.btn:hover {
+    transform: translateY(-1px);
+}
+
+/* bảng sản phẩm */
+.admin-order-detail table {
+    width: 100%;
+    background: #fafafa;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+}
+.admin-order-detail thead tr {
+    background-color: #f1f3f5;
+    text-transform: uppercase;
+    font-size: 14px;
+    color: #444;
+}
+.admin-order-detail th, 
+.admin-order-detail td {
+    padding: 12px 15px;
+    vertical-align: middle;
+}
+
+.admin-order-detail tbody tr:hover {
+    background-color: #f9f9f9;
+    transform: scale(1.01);
+}
+.admin-order-detail img {
+    width: 55px;
+    height: 55px;
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}
+</style>

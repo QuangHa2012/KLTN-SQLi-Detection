@@ -80,6 +80,7 @@ app.engine('hbs', engine({
         case 'pending': return "Đang xử lý";
         case 'paid': return "Đã thanh toán";
         case 'failed': return "Thanh toán thất bại";
+        case 'shipping': return "Đang giao hàng";
         case 'cancelled': return "Đã hủy";
         default: return status;
       }
