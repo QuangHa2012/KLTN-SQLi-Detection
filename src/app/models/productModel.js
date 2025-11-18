@@ -148,7 +148,7 @@ class ProductModel {
     }
 
     // Lấy sản phẩm với phân trang + sort + search + gender filter
-    async getProductsPaginated(page = 1, limit = 8, sort = "newest", q = "", gender = "unisex") {
+    async getProductsPaginated(page = 1, limit = 8, sort = "newest", q = "", gender = "") {
         let pool = await connectDB();
         const offset = (page - 1) * limit;
 

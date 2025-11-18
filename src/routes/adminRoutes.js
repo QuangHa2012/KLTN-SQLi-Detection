@@ -51,8 +51,6 @@ router.post('/orders/:id/delete', isAdmin, orderAdminController.deleteOrder);
 
 
 
-
-
 // Discount management routes
 router.get('/discounts', isAdmin, discountController.list);
 router.get('/discounts/add', isAdmin, discountController.addPage);

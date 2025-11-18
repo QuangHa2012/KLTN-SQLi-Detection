@@ -1,4 +1,4 @@
-<div class="container ">
+<div class="container admin-product-edit">
     <h2>Chỉnh sửa sản phẩm</h2>
 
     <form method="POST" action="/admin/products/{{product.id}}/update">
@@ -52,4 +52,89 @@
     <a href="/admin/products" class="btn btn-secondary">Hủy</a>
     </form>
 </div>
+
+<style>
+/* --- Container tổng thể --- */
+.container.admin-product-edit {
+    background-color: #fff;
+    padding: 25px 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+    font-family: "Segoe UI", Roboto, sans-serif;
+    color: #333;
+    max-width: 900px;
+    margin-top: 30px;
+}
+
+/* Tiêu đề */
+.admin-product-edit h2 {
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 25px;
+    text-align: center;
+    background-color: #cccfd1;
+    padding :12px 0;
+    border-radius: 12px;
+}
+
+/* Form control */
+.admin-product-edit .form-control,
+.admin-product-edit select,
+.admin-product-edit textarea {
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    transition: all 0.2s ease;
+}
+
+.admin-product-edit .form-control:focus,
+.admin-product-edit select:focus,
+.admin-product-edit textarea:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0,123,255,0.2);
+}
+
+/* Label */
+.admin-product-edit .form-label {
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+/* Buttons */
+.admin-product-edit .btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+/* Hover buttons */
+.admin-product-edit .btn-primary:hover {
+    background-color: #0069d9;
+    border-color: #005cbf;
+}
+
+.admin-product-edit .btn-secondary:hover {
+    background-color: #5a5a5a;
+    color: #fff;
+}
+
+/* Spacing */
+.admin-product-edit .mb-3 {
+    margin-bottom: 18px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container.admin-product-edit {
+        padding: 20px 15px;
+    }
+    .admin-product-edit .btn {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+
+</style>
 

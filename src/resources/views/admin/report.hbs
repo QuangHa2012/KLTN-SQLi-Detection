@@ -207,6 +207,46 @@
             console.error(" Lỗi loadOrderStatus:", err);
         }
     }
+     // ===== LOAD SẢN PHẨM BÁN CHẠY ===== 
+    async function loadBestSellers() {
+        try {
+            const res = await fetch('/admin/api/products/best-selling');
+            const data = await res.json();
+
+            const labels = data.map(item => item.name);
+            const sold = data.map(item => item.totalSold);
+
+            if (bestSellerChart) bestSellerChart.destroy();
+
+            const ctx = document.getElementById('bestSellerChart').getContext('2d');
+
+            bestSellerChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng bán',
+                        data: sold,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Lỗi loadBestSellers:", error);
+        }
+    }
+
 
     // ===== QUICK RANGE =====
     document.getElementById('quickRange').addEventListener('change', function() {
@@ -262,4 +302,27 @@
         updateAllCharts(lastWeek, today);
     });
 </script>
+
+<script>
+    // ===== EXPORT EXCEL THEO NGÀY =====
+    const exportBtn = document.querySelector('.btn-success i.bi-file-earmark-spreadsheet').parentElement;
+
+    exportBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+
+        // Lấy ngày từ input filter
+        const start = document.getElementById('startDate').value;
+        const end = document.getElementById('endDate').value;
+
+        // Tạo URL download với query params
+        let url = '/admin/api/export/excel';
+        if (start && end) {
+            url += `?startDate=${start}&endDate=${end}`;
+        }
+
+        // Mở link download
+        window.location.href = url;
+    });
+</script>
+
 
