@@ -25,37 +25,80 @@ class ProfileController {
     async update(req, res) {
         try {
             const { username, email, phone, address, gender, day, month, year } = req.body;
+            const user = await userModel.findById(req.session.user.id);
 
+            // --- Birthday ---
             let birthday = null;
-                if (day && month && year) {
-                    birthday = `${year}-${month}-${day}`;
-                }
+            if (day && month && year) {
+                birthday = `${year}-${month}-${day}`;
+            }
 
-
+            // --- Avatar ---
+            let avatarPath = null;
             if (req.file) {
                 avatarPath = `/uploads/avatars/${req.file.filename}`;
-                // nếu người dùng có avatar cũ thì xóa ảnh cũ (tùy chọn)
-                const user = await userModel.findById(req.session.user.id);
+                // Xóa ảnh cũ nếu có
                 if (user.avatar && fs.existsSync(path.join('public', user.avatar))) {
                     fs.unlinkSync(path.join('public', user.avatar));
                 }
             }
 
-            await userModel.updateProfile(req.session.user.id, {
+            // --- Kiểm tra số điện thoại trùng (local)---
+            if (phone) {
+                const existingPhone = await userModel.findByPhone(phone);
+                if (existingPhone && existingPhone.id !== user.id && existingPhone.authProvider === 'local') {
+                    return res.render('profile/edit', {
+                        user,
+                        error: 'Số điện thoại này đã được sử dụng cho tài khoản local khác!'
+                    });
+                }
+            }
+            // --- Kiểm tra email trùng (local) ---
+            if (user.authProvider === 'local' && email) {
+                const existingEmail = await userModel.findByEmail(email);
+                if (existingEmail && existingEmail.id !== user.id && existingEmail.authProvider === 'local') {
+                    return res.render('profile/edit', {
+                        user,
+                        error: 'Email này đã được sử dụng cho tài khoản local khác!'
+                    });
+                }
+            }
+
+            // --- Dữ liệu để update ---
+            let updateData = {
                 username,
-                email,
                 phone,
                 address,
                 gender,
                 birthday,
                 ...(avatarPath && { avatar: avatarPath })
-            });
+            };
+
+            // Chỉ update email nếu là tài khoản local
+            if (user.authProvider === 'local') {
+                updateData.email = email;
+            }
+
+            // --- Update profile ---
+            await userModel.updateProfile(user.id, updateData);
+
+            // --- Cập nhật session ---
+            Object.assign(req.session.user, updateData);
+
+            // Redirect về trang profile
             res.redirect("/profile");
+
         } catch (error) {
             console.error(error);
-            res.status(500).send("Lỗi khi cập nhật hồ sơ");
+            // Lỗi server -> render lại form với thông báo
+            const user = await userModel.findById(req.session.user.id);
+            res.render('profile/edit', { 
+                user, 
+                error: 'Có lỗi xảy ra khi cập nhật hồ sơ, vui lòng thử lại.' 
+            });
         }
     }
+
 
     // GET /profile/change-password
     changePasswordPage(req, res) {

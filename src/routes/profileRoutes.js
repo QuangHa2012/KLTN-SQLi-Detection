@@ -49,4 +49,6 @@ router.post('/delete-avatar', ensureAuthenticated, profileController.deleteAvata
 router.get('/change-password', ensureAuthenticated, profileController.changePasswordPage);
 router.post('/change-password', ensureAuthenticated, profileController.changePassword);
 
+
+
 module.exports = router;

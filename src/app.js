@@ -42,8 +42,12 @@ app.use(passport.session());
 
 // Truyền user vào tất cả view
 app.use((req, res, next) => {
-  res.locals.user = req.user || req.session.user || null;
-  next();
+    res.locals.user = req.session.user || req.user || null;
+    next();
+});
+
+app.get('/debug-session', (req, res) => {
+    res.send(req.session.user);
 });
 
 //count cart items
@@ -58,6 +62,7 @@ app.engine('hbs', engine({
         return price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     },
     eq: (a, b) => a === b,
+    ne: (a, b) => a !== b,
     or: (a, b) => a || b,
     gt: (a, b) => a > b,
     lt: (a, b) => a < b,

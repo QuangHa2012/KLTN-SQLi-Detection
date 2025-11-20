@@ -36,7 +36,14 @@ class AccountController {
                 return res.render('accounts/login', { error: 'Sai mật khẩu!' });
             }
 
-            req.session.user = { id: user.id, username: user.username, role: user.role };
+            req.session.user = {
+                id: user.id,
+                username: user.username,
+                role: user.role,
+                avatar: user.avatar || '/img/avatar-df.png',
+                email: user.email,
+                phone: user.phone
+            };
             res.redirect('/');
         } catch (err) {
             console.error(err);
@@ -54,7 +61,7 @@ class AccountController {
         try {
             const existingLocalUser = await userModel.findByEmailAndProvider(email, 'local');
             if (existingLocalUser) {
-                return res.render('accounts/register', { error: 'Email này đã được đăng ký bằng tài khoản thường!' });
+                return res.render('accounts/register', { error: 'Email này đã được đăng ký bằng tài khoản khác!' });
             }
 
             const hashed = await bcrypt.hash(password, 10);

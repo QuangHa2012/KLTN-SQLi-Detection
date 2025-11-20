@@ -218,6 +218,22 @@ class UserModel {
             `);
     }
 
+    async findByPhone(phone) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('phone', sql.NVarChar, phone)
+            .query('SELECT * FROM users WHERE phone = @phone');
+        return result.recordset[0] || null;
+    }
+
+    async findByEmail(email) {
+        const pool = await connectDB();
+        const result = await pool.request()
+            .input('email', sql.NVarChar, email)
+            .query('SELECT * FROM users WHERE email = @email');
+        return result.recordset[0] || null;
+    }
+
 }
 
 module.exports = new UserModel();

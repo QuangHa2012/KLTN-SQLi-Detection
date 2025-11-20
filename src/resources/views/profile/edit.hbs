@@ -1,7 +1,9 @@
 <div class="container py-5">
   <div class="mx-auto profile-edit-card p-4">
     <h2 class="fw-semibold mb-4 text-center profile-edit-title">Chỉnh sửa thông tin</h2>
-
+    {{#if error}}
+      <div class="alert alert-danger text-center">{{error}}</div>
+    {{/if}}
     <form action="/profile/edit" method="POST" class="bg-white p-4 border rounded-3 profile-edit-form">
       <div class="mb-3">
         <label class="form-label fw-semibold">Tên người dùng</label>
@@ -10,7 +12,13 @@
 
       <div class="mb-3">
         <label class="form-label fw-semibold">Email</label>
-        <input type="email" name="email" value="{{user.email}}" class="form-control rounded-2">
+        <input type="email" name="email" value="{{user.email}}" class="form-control rounded-2"
+        {{#unless (eq user.authProvider "local")}}disabled{{/unless}}>
+        {{#unless (eq user.authProvider "local")}}
+          <div class="form-text text-warning">
+            Email chỉ có thể thay đổi nếu bạn đăng ký bằng tài khoản thường.
+          </div>
+        {{/unless}}
       </div>
 
       <div class="mb-3">
