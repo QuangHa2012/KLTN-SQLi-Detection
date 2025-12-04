@@ -31,21 +31,6 @@ class ProductReviewModel {
         return result.recordset[0];
     }
 
-     // Thêm mới
-    async addReview(productId, userId, rating, comment) {
-        const pool = await connectDB();
-        const result = await pool.request()
-            .input("productId", sql.Int, productId)
-            .input("userId", sql.Int, userId)
-            .input("rating", sql.Int, rating)
-            .input("comment", sql.NVarChar, comment)
-            .query(`
-                INSERT INTO ProductReviews (product_id, user_id, rating, comment, createdAt)
-                VALUES (@productId, @userId, @rating, @comment, GETDATE())
-            `);
-        return result.rowsAffected[0] > 0;
-    }
-
     // Cập nhật đánh giá
     async updateReview(productId, userId, rating, comment) {
         const pool = await connectDB();
@@ -127,6 +112,11 @@ class ProductReviewModel {
             `);
         return result.rowsAffected[0] > 0;
     }
+
+    
+    
+    
+
 }
 
 module.exports = new ProductReviewModel();

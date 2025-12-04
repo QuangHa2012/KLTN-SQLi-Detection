@@ -1,0 +1,56 @@
+<div class='admin-user-list-container'>
+  <div class='admin-user-list'>
+    <div class='header'>
+      <h2>💬 Khách đang chat</h2>
+    </div>
+
+    {{#if users.length}}
+      <ul class='user-list'>
+        {{#each users}}
+          <li>
+            <a href='/chat/admin/chat/{{userId}}'>
+              <div class='avatar'>{{userId}}</div>
+
+              <div class='info'>
+                <div class='name'>User #{{userId}}</div>
+                <div class='status online'>Đang chờ phản hồi</div>
+              </div>
+
+              {{#if unread}}
+                <span class='badge'>{{unread}}</span>
+              {{/if}}
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+    {{else}}
+      <p class='empty'>📭 Hiện chưa có khách nào gửi tin nhắn</p>
+    {{/if}}
+  </div>
+</div>
+
+<style>
+  /* Container để cách xa header */ 
+  .admin-user-list-container { 
+    display: flex;
+  justify-content: center; 
+  margin-top: 90px; /* cách header ra xa */ 
+  padding:20px; } /* Khung danh sách */ .admin-user-list { width: 420px; background:
+  #fff; border-radius: 16px; border: 1px solid #ddd; box-shadow: 0 4px 14px
+  rgba(0, 0, 0, 0.05); overflow: hidden; } /* Header */ .admin-user-list .header
+  { background: linear-gradient(45deg, #343a40, #73777d); padding: 18px;
+  text-align: center; } .admin-user-list h2 { color: #fff; margin: 0; } /* Danh
+  sách */ .user-list { margin: 0; padding: 0; list-style: none; } .user-list li
+  a { display: flex; align-items: center; padding: 14px; text-decoration: none;
+  color: #000; border-bottom: 1px solid #eee; transition: 0.2s; position:
+  relative; } .user-list li a:hover { background: #eef5ff; } /* Avatar */
+  .avatar { width: 48px; height: 48px; background: #343a40; color: white;
+  border-radius: 50%; display: flex; align-items: center; justify-content:
+  center; font-weight: bold; margin-right: 12px; } /* Info */ .info .name {
+  font-size: 16px; font-weight: bold; } .info .status { font-size: 13px; color:
+  gray; } .info .status.online { color: #00aa52; } /* Badge tin nhắn */ .badge {
+  position: absolute; right: 20px; background: red; color: white; padding: 3px
+  7px; border-radius: 10px; font-size: 12px; } /* Trạng thái rỗng */ .empty {
+  padding: 20px; text-align: center; color: gray; }
+
+</style>

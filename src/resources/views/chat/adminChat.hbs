@@ -1,0 +1,280 @@
+<div class="chat-admin">
+
+    <!-- Sidebar -->
+    <aside class="chat-sidebar">
+        <h3><i class="bi bi-people"></i> Danh sách khách</h3>
+        <ul>
+            {{#each users}}
+                <li class="{{#ifEquals userId ../userId}}active{{/ifEquals}}">
+                    <a href="/chat/admin/chat/{{userId}}">
+                        <div class="avatar">{{userId}}</div>
+                        <span>User {{userId}}</span>
+                    </a>
+                </li>
+            {{/each}}
+        </ul>
+    </aside>
+
+    <!-- Main Chat -->
+    <main class="chat-container">
+        <header class="chat-header">
+            <i class="bi bi-chat-dots"></i> Đang chat với User {{userId}}
+        </header>
+
+        <section id="chat-box" class="chat-box">
+            {{#each messages}}
+                <div class="msg-row {{#if isAdmin}}right{{else}}left{{/if}}">
+                    <div class="bubble">
+                        {{message}}
+                        <div class="time">{{formatDate createdAt}}</div>
+                    </div>
+                </div>
+            {{/each}}
+        </section>
+
+        <footer class="chat-input">
+            <input id="msg" placeholder="Nhập tin nhắn..." />
+            <button id="sendBtn">Gửi</button>
+        </footer>
+    </main>
+</div>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+socket.emit("register", { userId: {{adminId}} });
+
+const chatBox = document.getElementById("chat-box");
+const input = document.getElementById("msg");
+
+document.getElementById("sendBtn").onclick = send;
+input.addEventListener("keyup", e => { if (e.key === "Enter") send(); });
+
+function send() {
+    let text = input.value.trim();
+    if (!text) return;
+
+    socket.emit("adminMessage", {
+        userId: {{userId}},
+        adminId: {{adminId}},
+        message: text
+    });
+
+    appendMsg(text, "right");
+    input.value = "";
+}
+
+socket.on("receiveMessage", data => {
+    if (data.senderId === {{userId}} && !data.isAdmin) {
+        appendMsg(data.message, "left");
+    }
+});
+
+function appendMsg(text, side) {
+    const row = document.createElement("div");
+    row.className = `msg-row ${side}`;
+    row.innerHTML = `
+        <div class="bubble">
+            ${text}
+            <div class="time">${new Date().toLocaleTimeString()}</div>
+        </div>`;
+
+    chatBox.appendChild(row);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+window.onload = () => chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+
+
+
+<style>
+/* Layout tổng */
+.chat-admin {
+    display: flex;
+    height: 100vh;
+    background: #f5f6fa;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.chat-sidebar {
+    width: 260px;
+    background: #ffffff;
+    border-right: 1px solid #ddd;
+    box-shadow: 2px 0 6px rgba(0,0,0,.05);
+    z-index: 10;
+}
+
+.chat-sidebar h3 {
+    padding: 18px;
+    margin: 0;
+    background: #343a40;
+    color: white;
+    font-size: 18px;
+}
+
+.chat-sidebar ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.chat-sidebar li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    text-decoration: none;
+    color: #333;
+    transition: 0.2s;
+}
+
+.chat-sidebar li.active a {
+    background: #e7f0ff;
+    border-left: 4px solid #343a40;
+}
+
+.chat-sidebar li a:hover {
+    background: #f1f4ff;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    background: #343a40;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+}
+
+/* Main chat */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.chat-header {
+    background: #343a40;
+    padding: 14px;
+    font-size: 18px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
+}
+
+/* Chat box */
+.chat-box {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* Message Row */
+.msg-row {
+    margin-bottom: 12px;
+    display: flex;
+    width: 100%;
+}
+
+.msg-row.left {
+    justify-content: flex-start;
+}
+
+.msg-row.right {
+    justify-content: flex-end;
+}
+
+/* Bubble */
+.bubble {
+    max-width: 70%;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 14px;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 6px rgba(0,0,0,.05);
+    font-size: 14px;
+    position: relative;
+}
+
+.msg-row.right .bubble {
+    background: #343a40;
+    color: white;
+    border-color: #343a40;
+}
+
+.time {
+    margin-top: 4px;
+    font-size: 11px;
+    opacity: 0.7;
+    text-align: right;
+}
+
+/* Input */
+.chat-input {
+    display: flex;
+    padding: 14px;
+    background: white;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.chat-input button {
+    margin-left: 10px;
+    padding: 12px 16px;
+    background: #343a40;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .chat-sidebar {
+        width: 180px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+    }
+
+    .bubble {
+        max-width: 85%;
+    }
+
+    .chat-input button {
+        padding: 10px 14px;
+    }
+}
+
+@media (max-width: 600px) {
+    .chat-sidebar {
+        display: none;
+    }
+
+    .chat-admin {
+        flex-direction: column;
+    }
+
+    .chat-box {
+        padding: 12px;
+    }
+}
+</style>

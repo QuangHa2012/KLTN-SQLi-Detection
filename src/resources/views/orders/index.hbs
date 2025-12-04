@@ -17,14 +17,12 @@
         <td>#{{this.id}}</td>
         <td>{{this.total}} VND</td>
         <td>
-          {{#if (eq this.status "paid")}}
+          {{#if (eq this.payment_status "Thành công")}}
             <span class="badge badge-success">Đã thanh toán</span>
-          {{else if (eq this.status "pending")}}
-            <span class="badge badge-warning">Chờ thanh toán</span>
-          {{else if (eq this.status "cancelled")}}
-            <span class="badge badge-secondary">Đã hủy</span>
-          {{else}}
+          {{else if (eq this.payment_status "Thất bại")}}
             <span class="badge badge-danger">Thanh toán thất bại</span>
+          {{else}}
+            <span class="badge badge-warning">Chưa thanh toán</span>
           {{/if}}
         </td>
         <td>{{formatDate this.createdAt}}</td>

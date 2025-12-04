@@ -13,7 +13,7 @@ class OrderModel {
             .input("limit", sql.Int, limit)
             .input("offset", sql.Int, offset)
             .query(`
-                SELECT o.id, o.total, o.status, o.createdAt 
+                SELECT o.id, o.total, o.status, o.payment_status, o.createdAt
                 FROM Orders o
                 WHERE o.user_id = @userId
                 ORDER BY o.createdAt DESC
@@ -109,6 +109,14 @@ class OrderModel {
 
         order.items = itemsRes.recordset;
         return order;
+    }
+
+    async updatePaymentStatus(orderId, paymentStatus) {
+        const pool = await connectDB();
+        await pool.request()
+            .input('orderId', sql.Int, orderId)
+            .input('paymentStatus', sql.NVarChar, paymentStatus)
+            .query('UPDATE Orders SET payment_status=@paymentStatus WHERE id=@orderId');
     }
 
 

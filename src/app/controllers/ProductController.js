@@ -243,10 +243,19 @@ class ProductController {
                 ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / totalReviews).toFixed(2)
                 : 0;
 
-            // Lấy review của user hiện tại (nếu có)
+            // Lấy review của user hiện tại (nếu đã đăng nhập)
             let userReview = null;
+            let hasUserPurchased = false;
             if (req.session.user) {
-                userReview = await ProductReview.getUserReview(id, req.session.user.id);
+                const user = req.session.user;
+                userReview = await ProductReview.getUserReview(id, user.id);
+
+                // Nếu user không phải admin → kiểm tra đã mua chưa
+                if (user.role !== 'admin') {
+                    hasUserPurchased = await Product.hasUserPurchased(user.id, id);
+                } else {
+                    hasUserPurchased = true;
+                }
             }
 
             res.render("productDetail", {
@@ -255,13 +264,16 @@ class ProductController {
                 totalReviews,
                 averageRating,
                 user: req.session.user || null,
-                userReview // truyền xuống view
+                userReview,
+                hasUserPurchased
             });
+
         } catch (error) {
             console.error("❌ Lỗi khi lấy chi tiết sản phẩm:", error);
             res.status(500).render("500", { message: "Lỗi server khi tải chi tiết sản phẩm" });
         }
     }
+
 
 
     // [POST] /products/:id/reviews

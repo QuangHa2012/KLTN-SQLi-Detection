@@ -7,38 +7,283 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/app.css">
     <title>Document</title>
+
+    <style>
+        /* Nút chat nổi */
+        #chat-float-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background: #0d6efd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            transition: 0.25s;
+        }
+        #chat-float-btn:hover { transform: scale(1.12); }
+
+        /* Popup chat */
+        #chat-popup {
+            position: fixed;
+            bottom: 95px;
+            right: 25px;
+            width: 330px;
+            height: 420px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(0,0,0,.28);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 9999;
+        }
+        #chat-popup.hidden {
+            display: none;
+        }
+
+        .popup-header {
+            background: #0d6efd;
+            color: white;
+            padding: 12px;
+            font-size: 17px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .popup-body {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #f2f2f2;
+        }
+
+        .popup-input {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+            background: white;
+        }
+        .popup-input input {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .popup-input button {
+            margin-left: 8px;
+            padding: 8px 12px;
+            background: #0d6efd;
+            border: none;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .msg-row { margin-bottom: 10px; display: flex; }
+        .msg-left { justify-content: flex-start; }
+        .msg-right { justify-content: flex-end; }
+        .bubble {
+            max-width: 70%;
+            padding: 9px 13px;
+            border-radius: 14px;
+            background: #fff;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .msg-right .bubble {
+            background: #0d6efd;
+            border-color: #0d6efd;
+            color: #fff;
+        }
+
+        /* Nút admin */
+        .admin-chat-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 25px;
+            width: 60px;
+            height: 60px;
+            background: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: white;
+            cursor: pointer;
+            z-index: 9999;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+
+        /* Popup danh sách user */
+        .admin-user-popup {
+            position: fixed;
+            bottom: 95px;
+            left: 25px;
+            width: 350px;
+            height: 430px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(0,0,0,.25);
+            overflow: auto;
+            z-index: 9999;
+        }
+
+        /* Popup chat với user */
+        .admin-chat-popup {
+            position: fixed;
+            bottom: 95px;
+            left: 25px;
+            width: 350px;
+            height: 420px;
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 5px 18px rgba(0,0,0,.28);
+            overflow: hidden;
+            z-index: 9999;
+        }
+
+        .hidden { display: none; }
+
+
+    </style>
 </head>
+
 <body>
     <div class="app">
         {{> header}}
-        
         <div class="body-content">
-            {{{body}}}{{!nội dung của từng trang sẽ đc render tại đây}}
+            {{{body}}}
         </div>
-    
         {{> footer}}
     </div>
 
+    {{#if user}}
+        {{#if (eq user.role "user")}}
+            <!-- Nút mở chat -->
+            <div id="chat-float-btn">
+                <i class="bi bi-chat-dots-fill"></i>
+
+                {{#if unread}}
+                    <span id="chat-badge"
+                        style="
+                            position:absolute;
+                            top:-5px;
+                            right:-5px;
+                            background:red;
+                            color:white;
+                            padding:2px 6px;
+                            font-size:12px;
+                            border-radius:50%;
+                        ">
+                        {{unread}}
+                    </span>
+                {{/if}}
+            </div>
+
+            <!-- Popup Chat -->
+            <div id="chat-popup" class="hidden">
+                <div class="popup-header">
+                    <i class="bi bi-chat-dots"></i> Chat hỗ trợ
+                    <span id="close-chat" style="cursor:pointer;">✖</span>
+                </div>
+
+                <div id="popup-messages" class="popup-body">
+                    {{#each chatMessages}}
+                        <div class="msg-row {{#if isAdmin}}msg-left{{else}}msg-right{{/if}}">
+                            <div class="bubble">
+                                {{message}}
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+
+                <div class="popup-input">
+                    <input id="popup-msg" placeholder="Nhập tin nhắn..." />
+                    <button id="popup-send">Gửi</button>
+                </div>
+            </div>
+        {{/if}}
+    {{/if}}
+    
+
     <script src="/js/jquery-3.6.4.min.js"></script>
     <script src="/js/bootstrap.min.js"></script>
-    <script>
-        window.addEventListener("scroll", function() {
-            const header = document.querySelector("header");
-            if (window.scrollY > 0) { // cuộn xuống 50px
-                header.classList.add("scrolled");
-            } else {
-                header.classList.remove("scrolled");
-            }
-        });
-</script>
 
-<script>
-  if (window.location.hash && window.location.hash === '#_=_') {
-    history.replaceState
-      ? history.replaceState(null, null, window.location.href.split('#')[0])
-      : window.location.hash = '';
-  }
-</script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        const socket = io();
+        
+        // nếu user chưa login => gán 0
+        let userId = {{#if chatUserId}}{{chatUserId}}{{else}}0{{/if}};
+
+        const popup = document.getElementById("chat-popup");
+        const btn = document.getElementById("chat-float-btn");
+        const closeBtn = document.getElementById("close-chat");
+
+        if (btn){
+            btn.onclick = () => {
+                popup.classList.remove("hidden");
+
+                const badge = document.getElementById("chat-badge");
+                if (badge) badge.remove();
+            }
+
+            closeBtn.onclick = () => popup.classList.add("hidden");
+        }
+
+        if (userId > 0) socket.emit("register", { userId });
+
+
+        /* ADMIN POPUP */
+        const adminBtn = document.getElementById("admin-chat-float-btn");
+        const adminPopup = document.getElementById("admin-chat-popup");
+        const adminClose = document.getElementById("admin-close-chat");
+
+        if (adminBtn) adminBtn.onclick = () => adminPopup.classList.remove("hidden");
+        if (adminClose) adminClose.onclick = () => adminPopup.classList.add("hidden");
+
+        // Gửi tin nhắn
+        document.getElementById("popup-send").onclick = sendMsg;
+        document.getElementById("popup-msg").addEventListener("keyup", e => {
+            if (e.key === "Enter") sendMsg();
+        });
+
+        function sendMsg() {
+            let input = document.getElementById("popup-msg");
+            let msg = input.value.trim();
+            if (!msg) return;
+
+            appendMsg(msg, "right");
+            socket.emit("userMessage", { userId, message: msg });
+            input.value = "";
+        }
+
+        socket.on("receiveMessage", data => {
+            appendMsg(data.message, data.isAdmin ? "left" : "right");
+        });
+
+        function appendMsg(text, side) {
+            const box = document.getElementById("popup-messages");
+            let row = document.createElement("div");
+            row.className = "msg-row msg-" + side;
+
+            row.innerHTML = `<div class="bubble">${text}</div>`;
+            box.appendChild(row);
+            box.scrollTop = box.scrollHeight;
+        }
+    </script>
+
+    
+
 </body>
 </html>
-

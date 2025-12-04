@@ -263,8 +263,7 @@ class ProductModel {
             .input('keyword', sql.NVarChar, `%${keyword}%`)
             .query("SELECT COUNT(*) as total FROM Products WHERE isDeleted = 0 AND name LIKE @keyword");
 
-        const totalItems = countResult.recordset[0].total;
-        const totalPages = Math.ceil(totalItems / limit);
+        const total = countResult.recordset[0].total;
 
         // Lấy sản phẩm theo phân trang
         const result = await pool.request()
@@ -280,9 +279,7 @@ class ProductModel {
 
         return {
             products: result.recordset,
-            totalItems,
-            totalPages,
-            currentPage: page
+            total
         };
     }
 
@@ -313,6 +310,24 @@ class ProductModel {
                 WHERE id = @productId
             `);
     }
+
+    async hasUserPurchased(userId, productId) {
+        let pool = await connectDB();
+        const result = await pool.request()
+            .input('userId', sql.Int, userId)
+            .input('productId', sql.Int, productId)
+            .query(`
+                SELECT COUNT(*) AS count
+                FROM Orders o
+                JOIN OrderItems oi ON o.id = oi.order_id
+                WHERE o.user_id = @userId 
+                AND oi.product_id = @productId 
+                AND o.status IN ('completed', 'paid')
+            `);
+        return result.recordset?.[0]?.count > 0;
+    }
+
+
 
 }
 

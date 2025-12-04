@@ -5,14 +5,12 @@
     <p><strong>Ngày tạo:</strong> {{formatDate order.createdAt}}</p>
     <p><strong>Tổng tiền:</strong> {{formatPrice order.total}}</p>
     <p><strong>Trạng thái:</strong>
-        {{#if (eq order.status "paid")}}
-            <span class="badge badge-success">Đã thanh toán</span>
-        {{else if (eq order.status "pending")}}
-            <span class="badge badge-warning">Chờ thanh toán</span>
-        {{else if (eq order.status "cancelled")}}
-            <span class="badge badge-secondary">Đã hủy</span>
+        {{#if (eq order.payment_status "Thành công")}}
+          <span class="badge badge-success">Đã thanh toán</span>
+        {{else if (eq order.payment_status "Thất bại")}}
+          <span class="badge badge-danger">Thanh toán thất bại</span>
         {{else}}
-            <span class="badge badge-danger">Thanh toán thất bại</span>
+          <span class="badge badge-warning">Chưa thanh toán</span>
         {{/if}}
     </p>
   </div>

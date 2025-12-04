@@ -7,9 +7,11 @@ const paymentRouter = require('./paymentRoutes');
 const orderRouter = require('./orderRoutes');
 const profileRouter = require('./profileRoutes');
 const pagesRouter = require('./pagesRoutes');
+const chatRouter = require('./chatRoutes');
 
 
 function route(app) {
+    app.use('/chat',chatRouter); //tất cả route liên quan đến chat sẽ đi qua chatRoutes.js
     app.use('/orders',orderRouter); //tất cả route liên quan đến đơn hàng sẽ đi qua orderRoutes.js
     app.use('/pages',pagesRouter); //tất cả route liên quan đến các trang tĩnh sẽ đi qua pagesRoutes.js
     app.use('/carts',cartRouter); //tất cả route liên quan đến giỏ hàng sẽ đi qua cartRoutes.js

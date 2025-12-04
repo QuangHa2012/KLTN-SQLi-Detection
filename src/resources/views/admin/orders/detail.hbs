@@ -10,13 +10,13 @@
   <p><strong>Khách hàng:</strong> {{order.username}} ({{order.email}})</p>
   <p><strong>Tổng tiền:</strong> {{order.total}}₫</p>
   <p><strong>Trạng thái hiện tại:</strong> 
-    <span class="status-badge status-{{order.status}}">{{orderStatus order.status}}</span>
+    <span class="badge badge-{{order.status}}">{{orderStatus order.status}}</span>
   </p>
 
   <form action="/admin/orders/{{order.id}}/status" method="POST" class="mb-4">
     <label for="status" class="form-label fw-bold">Cập nhật trạng thái:</label>
     <select name="status" id="status" class="form-select">
-      <option value="pending" {{#if (eq order.status "pending")}}selected{{/if}}>Đang xử lý</option>
+      <option value="pending" {{#if (eq order.status "pending")}}selected{{/if}}>Chờ thanh toán</option>
       <option value="paid" {{#if (eq order.status "paid")}}selected{{/if}}>Đã thanh toán</option>
       <option value="failed" {{#if (eq order.status "failed")}}selected{{/if}}>Thanh toán thất bại</option>
       <option value="shipping" {{#if (eq order.status "shipping")}}selected{{/if}}>Đang giao</option>
@@ -91,20 +91,17 @@
 }
 
 /* trạng thái */
-.status-badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 8px;
-    color: #fff;
-    text-transform: capitalize;
-    font-size: 13px;
-    font-weight: 500;
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
 }
-.status-pending { background-color: #ffc107; }
-.status-paid { background-color: #0d6efd; }
-.status-shipping { background-color: #17a2b8; }
-.status-completed { background-color: #28a745; }
-.status-cancelled { background-color: #dc3545; }
+.badge-pending { background-color: #ffc107 !important; color: #222; }
+.badge-paid { background-color: #28a745 !important; }
+.badge-shipping { background-color: #54ce8b !important; }
+.badge-cancelled { background-color: #6c757d !important; }
+.badge-completed { background-color: #0d6efd !important; } /* Hoàn tất */
+.badge-failed { background-color: #dc3545 !important; } /* Thanh toán thất bại */
 
 /* form */
 .admin-order-detail form select {

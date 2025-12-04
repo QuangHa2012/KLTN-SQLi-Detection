@@ -132,8 +132,9 @@ class ProfileController {
 
             res.render("profile/change-password", { success: "Đổi mật khẩu thành công!" });
         } catch (error) {
-            console.error(error);
-            res.status(500).send("Lỗi khi đổi mật khẩu");
+            return res.render("profile/change-password", { 
+                error: "Lỗi đổi mật khẩu",
+            });
         }
     }
 
@@ -160,8 +161,8 @@ class ProfileController {
             req.session.user.avatar = avatarPath;
             res.redirect('/profile');
         } catch (err) {
-        console.error('❌ Lỗi upload avatar:', err);
-        res.status(500).send('Lỗi khi tải ảnh đại diện');
+            console.error('❌ Lỗi upload avatar:', err);
+            res.status(500).send('Lỗi khi tải ảnh đại diện');
         }
           
     }

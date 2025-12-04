@@ -90,62 +90,55 @@ class OrderAdminController {
         }
     }
 
-    // async updateStatus(req, res) {
-    //     try {
-    //         const orderId = parseInt(req.params.id);
-    //         const { status } = req.body;
-    //         const pool = await connectDB();
 
-    //         await pool.request()
-    //             .input('id', sql.Int, orderId)
-    //             .input('status', sql.NVarChar, status)
-    //             .query('UPDATE Orders SET status=@status WHERE id=@id');
-
-    //         res.redirect('/admin/orders');
-    //     } catch (err) {
-    //         console.error(err);
-    //         res.status(500).send('Lỗi khi cập nhật trạng thái');
-    //     }
-    // }
-
-    
+    // Cập nhật trạng thái đơn hàng
     async updateStatus(req, res) {
-        const orderId = parseInt(req.params.id);
-        const { status } = req.body;
+        try {
+            const orderId = parseInt(req.params.id);
+            const { status } = req.body;
 
-        // Lấy order kèm items
-        const order = await OrderModel.getOrderWithItems(orderId);
-        if (!order) return res.redirect("/admin/orders");
+            // Lấy order kèm items
+            const order = await OrderModel.getOrderWithItems(orderId);
+            if (!order) return res.redirect("/admin/orders");
 
-        const oldStatus = order.status;
-        
+            const oldStatus = order.status;
 
-        // xóa khi callback momo thành công 
-        // === 1️⃣ Chuyển sang "paid" và chưa trừ kho ===
-        if (status === "paid" && oldStatus !== "paid" && !order.stockUpdated) {
-            for (const item of order.items) {
-                await ProductModel.changeStock(item.productId, -item.quantity);
+            // 1️⃣ Quản lý kho
+            // Chuyển sang "paid" hoặc "completed" và chưa trừ kho
+            if (["paid", "completed"].includes(status) && !order.stockUpdated) {
+                for (const item of order.items) {
+                    await ProductModel.changeStock(item.productId, -item.quantity);
+                }
+                await OrderModel.markStockUpdated(orderId, true);
             }
-            await OrderModel.markStockUpdated(orderId, true);
-        }
 
-        // xóa khi callback momo thành công 
-        // === 2️⃣ Chuyển về "pending", "cancelled" hoặc "failed" và đã trừ kho trước đó ===
-        if (["pending", "cancelled", "failed"].includes(status) && order.stockUpdated) {
-            for (const item of order.items) {
-                await ProductModel.changeStock(item.productId, item.quantity);
+            // Chuyển về "pending", "cancelled", "failed" và đã trừ kho trước đó → hoàn kho
+            if (["pending", "cancelled", "failed"].includes(status) && order.stockUpdated) {
+                for (const item of order.items) {
+                    await ProductModel.changeStock(item.productId, item.quantity);
+                }
+                await OrderModel.markStockUpdated(orderId, false);
             }
-            await OrderModel.markStockUpdated(orderId, false);
+
+            // 2️⃣ Cập nhật trạng thái đơn hàng
+            await OrderModel.updateStatus(orderId, status);
+
+            // 3️⃣ Đồng bộ payment_status
+            if (["paid", "completed"].includes(status)) {
+                await OrderModel.updatePaymentStatus(orderId, "Thành công");
+            } else if (status === "failed") {
+                await OrderModel.updatePaymentStatus(orderId, "Thất bại");
+            } else if (status === "pending") {
+                await OrderModel.updatePaymentStatus(orderId, "Chưa thanh toán");
+            }
+
+            res.redirect("/admin/orders");
+        } catch (err) {
+            console.error(err);
+            res.status(500).send("Lỗi khi cập nhật trạng thái đơn hàng");
         }
-
-        // === 3️⃣ Trạng thái "shipping" hoặc "completed" giữ nguyên kho ===
-        // Không cần làm gì thêm
-
-        // Cập nhật trạng thái mới
-        await OrderModel.updateStatus(orderId, status);
-
-        res.redirect("/admin/orders");
     }
+
 
 
 
