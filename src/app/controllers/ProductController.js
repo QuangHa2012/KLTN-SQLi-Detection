@@ -76,6 +76,37 @@ class ProductController {
         });
     }
 
+    // GET /products/accessories
+    async getAccessoriesProducts(req, res) {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+
+        const { products, total } = await Product.getProductsByCategoryPaginated("accessory", page, limit);
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("products", {
+            products,
+            currentPage: page,
+            totalPages,
+            category: "accessory"
+        });
+    }
+
+    // GET /products/bags
+    async getBagsProducts(req, res) {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 8;
+
+        const { products, total } = await Product.getProductsByCategoryPaginated("bag", page, limit);
+        const totalPages = Math.ceil(total / limit);
+
+        res.render("products", {
+            products,
+            currentPage: page,
+            totalPages,
+            category: "bag"
+        });
+    }
 
 
     // [GET] /admin/products
@@ -334,13 +365,13 @@ class ProductController {
             const page = parseInt(req.query.page) || 1;
             const limit = 8; // số sản phẩm mỗi trang
 
-            const { products, totalPages, currentPage } = await Product.searchProducts(keyword, page, limit);
+            const { products, total } = await Product.searchProducts(keyword, page, limit);
 
             res.render('products', {
                 products,
                 q: keyword,
-                totalPages,
-                currentPage
+                totalPages: Math.ceil(total / limit),
+                currentPage: page
             }); 
         } catch (err) {
             console.error(err);

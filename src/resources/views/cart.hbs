@@ -107,17 +107,29 @@ document.addEventListener('DOMContentLoaded', function() {
         const emptyMsg = document.getElementById('cart-empty');
         const table = document.querySelector('table');
         const clearBtn = document.getElementById('clear-cart');
+        const summary = document.getElementById('cart-summary');
 
-        if(!tbody || tbody.querySelectorAll('tr').length === 0){
+        // Kiểm tra giỏ hàng trống
+        const isEmpty = !tbody || tbody.querySelectorAll('tr').length === 0;
+
+        if (isEmpty) {
             emptyMsg.style.display = 'block';
-            if(table) table.style.display = 'none';
-            if(clearBtn) clearBtn.style.display = 'none';
+            if (table) table.style.display = 'none';
+            if (clearBtn) clearBtn.style.display = 'none';
+
+            // ẨN phần thanh toán (nút Thanh toán nằm trong đây)
+            if (summary) summary.style.display = 'none';
+
         } else {
             emptyMsg.style.display = 'none';
-            if(table) table.style.display = 'table';
-            if(clearBtn) clearBtn.style.display = 'inline-block';
+            if (table) table.style.display = 'table';
+            if (clearBtn) clearBtn.style.display = 'inline-block';
+
+            // HIỆN phần thanh toán khi có hàng
+            if (summary) summary.style.display = 'block';
         }
     }
+
 
     // Load lần đầu: lấy giá từ data-attributes
     const summary = document.getElementById('cart-summary');
