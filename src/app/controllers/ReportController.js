@@ -4,11 +4,13 @@ const fs = require('fs');
 const path = require('path');
 
 class ReportController {
+  // GET /admin/report
   showReportPage(req, res) {
     res.render('admin/report');
   }
 
   // === Doanh thu theo ngày ===
+  // GET /admin/report/revenue-by-day
   async revenueByDay(req, res) {
     try {
       const { startDate, endDate } = req.query;
@@ -40,6 +42,7 @@ class ReportController {
   }
 
   // === Sản phẩm bán chạy ===
+  // GET  /admin/report/best-selling-products
   async bestSellingProducts(req, res) {
     try {
       const pool = await connectDB();
@@ -62,6 +65,7 @@ class ReportController {
   }
 
   // === Đơn hàng theo trạng thái ===
+  // GET /admin/report/order-status-stats
   async orderStatusStats(req, res) {
     try {
       const pool = await connectDB();

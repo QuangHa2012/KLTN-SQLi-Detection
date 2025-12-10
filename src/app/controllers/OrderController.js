@@ -5,7 +5,7 @@ const { sql, connectDB } = require("../../config/db/db");
 const OrderModel = require("../models/orderModel");
 
 class OrderController {
-    // Xem danh sách đơn hàng có phân trang
+    // GET /orders
     async index(req, res) {
         try {
             if (!req.session.user) {
@@ -29,7 +29,7 @@ class OrderController {
         }
     }
 
-    // Chi tiết đơn hàng
+    // GET /orders/:id
     async orderDetail(req, res) {
         try {
             const orderId = parseInt(req.params.id);
@@ -62,7 +62,7 @@ class OrderController {
         }
     }
 
-    // Thử lại thanh toán
+    // POST /orders/:id/retry-payment
     async retryPayment(req, res) {
         try {
             const orderId = parseInt(req.params.id);
@@ -143,7 +143,7 @@ class OrderController {
         }
     }
 
-    // Hủy đơn hàng
+    // POST /orders/:id/cancel
     async cancel(req, res) {
         try {
             if (!req.session.user) {

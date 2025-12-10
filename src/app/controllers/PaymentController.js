@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const { sql, connectDB } = require('../../config/db/db')
 
 class PaymentController {
-  // Thanh toán giỏ hàng với MoMo
+  // POST /payment/checkout
   async checkout (req, res) {
     try {
       const userId = req.session.user.id
@@ -136,7 +136,7 @@ class PaymentController {
     }
   }
 
-  // Nhận callback từ MoMo
+  // POST /payment/momo-notify
   async momoNotify (req, res) {
     try {
       const { orderId, resultCode } = req.body
@@ -197,7 +197,7 @@ class PaymentController {
     }
   }
 
-  //
+  // POST /payment/buy-now
   async buyNow (req, res) {
     try {
       if (!req.session.user) {
@@ -331,7 +331,7 @@ class PaymentController {
       })
     }
   }
-
+  // GET /payment/success
   async success (req, res) {
     let orderId = req.query.orderId
 
@@ -352,7 +352,7 @@ class PaymentController {
 
     res.render('payment/success', { order })
   }
-
+  // GET /payment/fail
   fail (req, res) {
     res.render('payment/fail')
   }

@@ -5,7 +5,7 @@ function formatPrice(value) {
 }
 
 class CartController {
-    // Thêm vào giỏ hàng
+    //  /carts/add/:id
     async addToCart(req, res) {
         const userId = req.session.user?.id; // user đang đăng nhập
         const productId = req.params.id;
@@ -62,7 +62,7 @@ class CartController {
         }
     }
 
-     // Xem giỏ hàng
+    //  /carts  
     async viewCart(req, res) {
         const userId = req.session.user?.id;
         if (!userId) return res.redirect('/accounts/login');
@@ -115,7 +115,7 @@ class CartController {
         }
     }
 
-    // Cập nhật số lượng
+    // PUT /carts/update/:id
     async updateQuantity(req, res) {
         const userId = req.session.user?.id;
         const cartItemId = req.params.id;
@@ -198,7 +198,7 @@ class CartController {
         }
     }
 
-    // Xóa 1 sản phẩm
+    // DELETE /carts/remove/:id
     async removeItem(req, res){
         const userId = req.session.user?.id;
         const cartItemId = req.params.id;
@@ -262,7 +262,7 @@ class CartController {
         }
     }
 
-    // Xóa tất cả
+    // DELETE /carts/clear
     async clearCart(req, res){
         const userId = req.session.user?.id;
         if(!userId) return res.json({success:false});

@@ -152,7 +152,7 @@ class ProductModel {
         let pool = await connectDB();
         const offset = (page - 1) * limit;
 
-        // 1️⃣ Sắp xếp
+        //  Sắp xếp
         let orderBy = "ORDER BY id DESC"; // mặc định: mới nhất
         switch (sort) {
             case "oldest":
@@ -166,7 +166,7 @@ class ProductModel {
                 break;
         }
 
-        // 2️⃣ Điều kiện WHERE
+        //  Điều kiện WHERE
         let whereClause = "WHERE isDeleted = 0";
         if (q && q.trim() !== "") {
             whereClause += " AND name LIKE @q";
@@ -183,7 +183,7 @@ class ProductModel {
             }
         }
 
-        // 3️⃣ Chuẩn bị request
+        //  Chuẩn bị request
         let request = pool.request()
             .input('offset', sql.Int, offset)
             .input('limit', sql.Int, limit);
@@ -192,7 +192,7 @@ class ProductModel {
             request.input('q', sql.NVarChar, `%${q}%`);
         }
 
-        // 4️⃣ Truy vấn danh sách sản phẩm
+        //  Truy vấn danh sách sản phẩm
         const result = await request.query(`
             SELECT * FROM Products
             ${whereClause}
@@ -201,7 +201,7 @@ class ProductModel {
             FETCH NEXT @limit ROWS ONLY
         `);
 
-        // 5️⃣ Đếm tổng sản phẩm
+        // Đếm tổng sản phẩm
         const countRequest = pool.request();
         if (q && q.trim() !== "") countRequest.input('q', sql.NVarChar, `%${q}%`);
         if (gender && gender !== "unisex") countRequest.input('gender', sql.NVarChar, gender);

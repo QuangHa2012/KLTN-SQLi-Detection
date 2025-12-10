@@ -3,7 +3,7 @@ const OrderModel = require("../models/orderModel");
 const ProductModel = require("../models/productModel");
 
 class OrderAdminController {
-    // Danh sách đơn hàng (phân trang + lọc trạng thái)
+    // Danh sách đơn hàng (phân trang + lọc trạng thái) GET /admin/orders
     async listOrders(req, res) {
         try {
             const page = parseInt(req.query.page) || 1;
@@ -56,7 +56,7 @@ class OrderAdminController {
         }
     }
 
-    // Chi tiết đơn hàng
+    // GET /admin/orders/:id
     async orderDetail(req, res) {
         try {
             const orderId = parseInt(req.params.id);
@@ -91,7 +91,7 @@ class OrderAdminController {
     }
 
 
-    // Cập nhật trạng thái đơn hàng
+    // PUT /admin/orders/:id/status
     async updateStatus(req, res) {
         try {
             const orderId = parseInt(req.params.id);
@@ -141,7 +141,7 @@ class OrderAdminController {
 
 
 
-
+    // DELETE /admin/orders/:id/delete
     async deleteOrder(req, res) {
         try {
             const orderId = parseInt(req.params.id);
