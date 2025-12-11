@@ -11,7 +11,7 @@ class ProfileController {
             res.render('profile/index', { user });
         } catch (error) {
             console.error(error);
-            res.status(500).send('Lỗi khi tải hồ sơ người dùng');
+            res.status(500).render('500', {message:'Lỗi khi tải trang hồ sơ cá nhân'});
         }
     }
 
@@ -162,7 +162,7 @@ class ProfileController {
             res.redirect('/profile');
         } catch (err) {
             console.error('❌ Lỗi upload avatar:', err);
-            res.status(500).send('Lỗi khi tải ảnh đại diện');
+            res.status(500).render('500', {message:'Lỗi khi tải ảnh đại diện'});
         }
           
     }
@@ -192,7 +192,7 @@ class ProfileController {
         res.redirect('/profile');
         } catch (err) {
         console.error('❌ Lỗi xóa avatar:', err);
-        res.status(500).send('Lỗi khi xóa ảnh đại diện');
+        res.status(500).render('500', {message:'Lỗi khi xóa ảnh đại diện'});
         }
 
     }

@@ -25,7 +25,7 @@ class ProductController {
             });
         } catch (error) {
             console.error("❌ Lỗi khi lấy sản phẩm:", error);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server khi tải danh sách sản phẩm" });
         }
     }
     
@@ -135,7 +135,7 @@ class ProductController {
             });
         } catch (err) {
             console.error(err);
-            res.status(500).send('Lỗi khi lấy danh sách sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi tải danh sách sản phẩm'});
         }
     }
 
@@ -170,7 +170,7 @@ class ProductController {
             res.redirect('/admin/products');
         } catch (err) {
             console.error(err);
-            res.status(500).send('Lỗi khi thêm sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi thêm sản phẩm'});
         }
     }
 
@@ -181,7 +181,7 @@ class ProductController {
             const product = await Product.getProductById(req.params.id);
             res.render('admin/products/edit', { product });
         } catch (err) {
-            res.status(500).send('Lỗi khi lấy sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi tải trang chỉnh sửa sản phẩm'});
         }
     }
 
@@ -215,7 +215,7 @@ class ProductController {
             res.redirect('/admin/products');
         } catch (err) {
             console.error(err);
-            res.status(500).send('Lỗi khi cập nhật sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi cập nhật sản phẩm'});
         }
     }
 
@@ -225,7 +225,7 @@ class ProductController {
             await Product.deleteProduct(req.params.id);
             res.redirect('/admin/products');
         } catch (err) {
-            res.status(500).send('Lỗi khi xóa sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi xóa sản phẩm'});
         }
     }
 
@@ -235,7 +235,7 @@ class ProductController {
             const products = await Product.getDeletedProducts();
             res.render('admin/products/trash', { products });
         } catch (err) {
-            res.status(500).send('Lỗi khi lấy danh sách sản phẩm đã xóa');
+            res.status(500).render('500', {message:'Lỗi khi lấy danh sách sản phẩm đã xóa'});
         }
     }
 
@@ -245,7 +245,7 @@ class ProductController {
             await Product.restoreProduct(req.params.id);
             res.redirect('/admin/products/trash');
         } catch (err) {
-            res.status(500).send('Lỗi khi khôi phục sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi khôi phục sản phẩm'});
         }
     }
 
@@ -255,7 +255,7 @@ class ProductController {
             await Product.deletePermanent(req.params.id);
             res.redirect('/admin/products/trash');
         } catch (err) {
-            res.status(500).send('Lỗi khi xóa vĩnh viễn sản phẩm');
+            res.status(500).render('500', {message:'Lỗi khi xóa vĩnh viễn sản phẩm'});
         }
     }
 
@@ -329,7 +329,7 @@ class ProductController {
             res.redirect(`/products/${productId}`);
         } catch (error) {
             console.error("❌ Lỗi khi thêm/cập nhật đánh giá:", error);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server khi thêm/cập nhật đánh giá" });
         }
     }
 
@@ -350,11 +350,11 @@ class ProductController {
             if (deleted) {
                 res.redirect(req.get('referer') || '/products');
             } else {
-                res.status(403).send('Bạn không có quyền xóa đánh giá này.');
+                res.status(403).render('403', { message: 'Bạn không có quyền xóa đánh giá này' });
             }
         } catch (err) {
             console.error('❌ Lỗi xóa đánh giá:', err);
-            res.status(500).send('Lỗi máy chủ khi xóa đánh giá.');
+            res.status(500).render('500', { message: 'Lỗi server khi xóa đánh giá' });
         }
     }
 
@@ -375,7 +375,7 @@ class ProductController {
             }); 
         } catch (err) {
             console.error(err);
-            res.status(500).send('Lỗi server');
+            res.status(500).render('500', { message: 'Lỗi server khi tìm kiếm sản phẩm' });
         }
     }
 }

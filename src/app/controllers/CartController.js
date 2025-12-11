@@ -58,7 +58,7 @@ class CartController {
             res.redirect('/carts');
         } catch (err) {
             console.error(err);
-            res.status(500).send('Error thêm giỏ hàng');
+            res.status(500).render('500', {message:'Lỗi khi thêm sản phẩm vào giỏ hàng'});
         }
     }
 
@@ -111,7 +111,7 @@ class CartController {
 
         } catch (err) {
             console.error(err);
-            res.status(500).send('Error load cart');
+            res.status(500).render('500', {message:'Lỗi khi tải giỏ hàng'});
         }
     }
 

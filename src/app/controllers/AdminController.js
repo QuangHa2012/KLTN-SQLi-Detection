@@ -55,7 +55,7 @@ class AdminController {
             });
         } catch (err) {
             console.error(err);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server" });
         }
     }
 
@@ -70,7 +70,7 @@ class AdminController {
             res.redirect("/admin/users");
         } catch (err) {
             console.error(err);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server" });
         }
     }
 
@@ -87,7 +87,7 @@ class AdminController {
             res.redirect("/admin/users");
         } catch (err) {
             console.error(err);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server" });
         }
     }
 
@@ -110,7 +110,7 @@ class AdminController {
                     WHERE id=@id
                 `);
             if (!userResult.recordset.length) {
-                return res.status(404).send("User không tồn tại");
+                return res.status(404).render("404", { message: "Người dùng không tồn tại" });
             }
             let user = userResult.recordset[0];
 
@@ -180,7 +180,7 @@ class AdminController {
 
         } catch (err) {
             console.error(err);
-            res.status(500).send("Lỗi server");
+            res.status(500).render("500", { message: "Lỗi server" });
         }
     }
 

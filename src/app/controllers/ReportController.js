@@ -37,7 +37,7 @@ class ReportController {
       res.json(result.recordset);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error' });
+      res.status(500).render('500', {message:'Lỗi khi lấy doanh thu theo ngày'});
     }
   }
 
@@ -60,7 +60,7 @@ class ReportController {
       res.json(result.recordset);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error' });
+      res.status(500).render('500', {message:'Lỗi khi lấy sản phẩm bán chạy'});
     }
   }
 
@@ -77,7 +77,7 @@ class ReportController {
       res.json(result.recordset);
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error' });
+      res.status(500).render('500', {message:'Lỗi khi lấy thống kê trạng thái đơn hàng'});
     }
   }
 
@@ -114,7 +114,7 @@ class ReportController {
       });
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: 'Database error' });
+      res.status(500).render('500', {message:'Lỗi khi lấy thống kê tổng quan'});
     }
   }
 
@@ -248,7 +248,7 @@ class ReportController {
 
       } catch (err) {
           console.error('Export Excel error:', err);
-          res.status(500).json({ error: 'Lỗi xuất Excel' });
+          res.status(500).render('500', {message:'Lỗi khi xuất báo cáo Excel'});
       }
   }
 }

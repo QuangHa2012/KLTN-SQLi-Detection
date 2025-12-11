@@ -122,6 +122,27 @@ app.set('views', path.join(__dirname, 'resources', 'views')) //__dirname fix pat
 //init routes
 route(app)
 
+// Middleware bắt lỗi toàn hệ thống
+app.use((err, req, res, next) => {
+  console.error("Lỗi hệ thống:", err.message);
+
+  // Nếu lỗi liên quan đến SQL Server bị ngắt kết nối
+  if (
+    err.message.includes("Connection") ||
+    err.message.includes("connect") ||
+    err.message.includes("ECONN") ||
+    err.code === "ELOGIN"
+  ) {
+    return res.status(500).render("500", {
+      message: "Hệ thống đang bảo trì. Vui lòng quay lại sau!"
+    });
+  }
+
+  // Các lỗi khác
+  res.status(500).render("500", {
+    message: "Đã xảy ra lỗi trong hệ thống!"
+  });
+});
 
 // Socket.io setup for real-time chat
 const http = require('http');

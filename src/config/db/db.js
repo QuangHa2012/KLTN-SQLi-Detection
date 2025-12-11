@@ -23,6 +23,7 @@ async function connectDB() {
         return pool;
     } catch (err) {
         console.error("❌ Lỗi kết nối SQL Server:", err.message);
+        
         throw err; // quăng lỗi ra ngoài thay vì return undefined
     }
 }

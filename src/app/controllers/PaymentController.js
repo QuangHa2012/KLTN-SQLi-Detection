@@ -137,65 +137,101 @@ class PaymentController {
   }
 
   // POST /payment/momo-notify
-  async momoNotify (req, res) {
-    try {
-      const { orderId, resultCode } = req.body
-      const pool = await connectDB()
+  async momoNotify(req, res) {
+    const transaction = new sql.Transaction();
 
-      // orderId dạng "Orders.id_123456" -> lấy ID thật
-      const dbOrderId = parseInt(orderId.toString().split('_')[0])
+    try {
+      const { orderId, resultCode } = req.body;
+      const pool = await connectDB();
+
+      const dbOrderId = parseInt(orderId.toString().split("_")[0]);
+
+      // Mở transaction
+      await transaction.begin();
+      const request = new sql.Request(transaction);
 
       if (parseInt(resultCode) === 0) {
-        //  Thanh toán thành công
-        // 1. Cập nhật trạng thái order
-        await pool
-          .request()
-          .input('id', sql.Int, dbOrderId)
-          .query(`UPDATE Orders SET status='paid' WHERE id=@id`)
+        // 1. Cập nhật trạng thái order = paid
+        await request
+          .input("id", sql.Int, dbOrderId)
+          .query(`UPDATE Orders SET status='paid' WHERE id=@id`);
 
-        // 2. Trừ kho
-        const items = await pool
-          .request()
-          .input('orderId', sql.Int, dbOrderId)
-          .query(
-            `SELECT product_id, quantity FROM OrderItems WHERE order_id=@orderId`
-          )
+        // 2. Lấy items của order
+        const items = await request
+          .input("orderId", sql.Int, dbOrderId)
+          .query(`
+            SELECT product_id, quantity 
+            FROM OrderItems 
+            WHERE order_id=@orderId
+          `);
 
+        // 3. Trừ kho có kiểm tra tồn kho
         for (let item of items.recordset) {
-          await pool
-            .request()
-            .input('pid', sql.Int, item.product_id)
-            .input('qty', sql.Int, item.quantity)
-            .query(`UPDATE Products SET stock = stock - @qty WHERE id=@pid`)
+          const result = await request
+            .input("pid", sql.Int, item.product_id)
+            .input("qty", sql.Int, item.quantity)
+            .query(`
+              UPDATE Products
+              SET stock = stock - @qty
+              WHERE id=@pid AND stock >= @qty
+            `);
+
+          if (result.rowsAffected[0] === 0) {
+            // rollback nếu hết hàng
+            await transaction.rollback();
+            return res.render("error", {
+              message: `Sản phẩm ID ${item.product_id} đã hết hàng.`
+            });
+          }
         }
 
-        // 3. Xóa giỏ hàng (clear luôn)
-        const orderUser = await pool
-          .request()
-          .input('id', sql.Int, dbOrderId)
-          .query(`SELECT user_id FROM Orders WHERE id=@id`)
+        // 4. Xóa giỏ hàng của user
+        const orderUser = await request
+          .input("id", sql.Int, dbOrderId)
+          .query(`SELECT user_id FROM Orders WHERE id=@id`);
 
         if (orderUser.recordset.length > 0) {
-          const userId = orderUser.recordset[0].user_id
-          await pool.request().input('userId', sql.Int, userId).query(`
-                            DELETE FROM CartItems 
-                            WHERE cart_id IN (SELECT id FROM Carts WHERE user_id=@userId)
-                        `)
+          const userId = orderUser.recordset[0].user_id;
+
+          await request
+            .input("uid", sql.Int, userId)
+            .query(`
+              DELETE FROM CartItems
+              WHERE cart_id IN 
+                (SELECT id FROM Carts WHERE user_id=@uid)
+            `);
         }
+
+        // Commit nếu mọi thứ ok
+        await transaction.commit();
+
+        return res.render("success", {
+          message: "Thanh toán thành công!"
+        });
+
       } else {
-        //  Thanh toán thất bại
-        await pool
-          .request()
-          .input('id', sql.Int, dbOrderId)
-          .query(`UPDATE Orders SET status='failed' WHERE id=@id`)
+        // Thanh toán thất bại
+        await transaction.rollback();
+
+        await pool.request()
+          .input("id", sql.Int, dbOrderId)
+          .query(`UPDATE Orders SET status='failed' WHERE id=@id`);
+
+        return res.render("error", {
+          message: "Thanh toán thất bại. Vui lòng thử lại."
+        });
       }
 
-      res.json({ message: 'ok' })
     } catch (err) {
-      console.error(err)
-      res.status(500).json({ message: 'error' })
+      console.error(err);
+      await transaction.rollback();
+      return res.render("error", {
+        message: "Hệ thống đang bảo trì, vui lòng thử lại sau."
+      });
     }
   }
+
+
 
   // POST /payment/buy-now
   async buyNow (req, res) {
