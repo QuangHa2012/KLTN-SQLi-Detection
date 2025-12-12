@@ -7,25 +7,24 @@ function formatPrice(value) {
 class CartController {
     //  /carts/add/:id
     async addToCart(req, res) {
-        const userId = req.session.user?.id; // user đang đăng nhập
+        const userId = req.session.user?.id;
         const productId = req.params.id;
         const quantity = 1;
 
         if (!userId) {
-            return res.redirect('/accounts/login'); // bắt đăng nhập
+            return res.redirect('/accounts/login');
         }
 
         try {
             const pool = await connectDB();
 
-            // Kiểm tra giỏ hàng user đã có chưa
+            // kiểm tra giỏ hàng
             let cartResult = await pool.request()
                 .input('userId', sql.Int, userId)
                 .query('SELECT * FROM Carts WHERE user_id = @userId');
 
             let cartId;
             if (cartResult.recordset.length === 0) {
-                // tạo giỏ hàng mới
                 let newCart = await pool.request()
                     .input('userId', sql.Int, userId)
                     .query('INSERT INTO Carts (user_id) OUTPUT INSERTED.id VALUES (@userId)');
@@ -34,20 +33,43 @@ class CartController {
                 cartId = cartResult.recordset[0].id;
             }
 
-            // Kiểm tra sản phẩm đã có trong giỏ chưa
+            // kiểm tra tồn kho
+            let productResult = await pool.request()
+                .input("productId", sql.Int, productId)
+                .query("SELECT stock FROM Products WHERE id = @productId AND isDeleted = 0");
+
+            if (productResult.recordset.length === 0) {
+                return res.redirect("/carts");
+            }
+
+            const stock = productResult.recordset[0].stock;
+
+            // kiểm tra đã có trong giỏ chưa
             let itemResult = await pool.request()
                 .input('cartId', sql.Int, cartId)
                 .input('productId', sql.Int, productId)
-                .query('SELECT * FROM CartItems WHERE cart_id=@cartId AND product_id=@productId');
+                .query('SELECT quantity FROM CartItems WHERE cart_id=@cartId AND product_id=@productId');
 
             if (itemResult.recordset.length > 0) {
-                // update quantity
+                const currentQty = itemResult.recordset[0].quantity;
+
+                //  Nếu vượt tồn kho → không thêm
+                if (currentQty + 1 > stock) {
+                    req.session.cartError = "Số lượng vượt quá tồn kho!";
+                    return res.redirect("/carts");
+                }
+
                 await pool.request()
                     .input('cartId', sql.Int, cartId)
                     .input('productId', sql.Int, productId)
                     .query('UPDATE CartItems SET quantity = quantity + 1 WHERE cart_id=@cartId AND product_id=@productId');
             } else {
-                // thêm mới
+
+                if (1 > stock) {
+                    req.session.cartError = "Sản phẩm đã hết hàng!";
+                    return res.redirect("/carts");
+                }
+
                 await pool.request()
                     .input('cartId', sql.Int, cartId)
                     .input('productId', sql.Int, productId)
@@ -56,11 +78,13 @@ class CartController {
             }
 
             res.redirect('/carts');
+
         } catch (err) {
             console.error(err);
             res.status(500).render('500', {message:'Lỗi khi thêm sản phẩm vào giỏ hàng'});
         }
     }
+
 
     //  /carts  
     async viewCart(req, res) {
@@ -126,6 +150,34 @@ class CartController {
         try {
             const pool = await connectDB();
 
+            // lấy product_id + quantity hiện tại
+            let itemInfo = await pool.request()
+                .input('cartItemId', sql.Int, cartItemId)
+                .input('userId', sql.Int, userId)
+                .query(`
+                    SELECT ci.product_id, ci.quantity, p.stock
+                    FROM CartItems ci
+                    JOIN Carts c ON ci.cart_id = c.id
+                    JOIN Products p ON p.id = ci.product_id
+                    WHERE ci.id = @cartItemId AND c.user_id = @userId
+                `);
+
+            if (itemInfo.recordset.length === 0) {
+                return res.json({success:false});
+            }
+
+            const { product_id, stock } = itemInfo.recordset[0];
+
+            // ❗ kiểm tra vượt stock
+            if (quantity > stock) {
+                return res.json({
+                    success: false,
+                    error: "Số lượng vượt quá tồn kho!",
+                    maxStock: stock
+                });
+            }
+
+            // nếu quantity <= 0 → xóa
             if(quantity <= 0){
                 await pool.request()
                     .input('userId', sql.Int, userId)
@@ -150,7 +202,7 @@ class CartController {
                     `);
             }
 
-            // Tính lại tổng tiền
+            // == tính lại tổng các loại ==
             let result = await pool.request()
                 .input('userId', sql.Int, userId)
                 .query(`
@@ -162,9 +214,9 @@ class CartController {
                 `);
 
             const items = result.recordset;
-            let total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            let total = items.reduce((s, i) => s + i.price * i.quantity, 0);
 
-            const discountResult = await pool.request()
+            let discountResult = await pool.request()
                 .input("total", sql.Decimal(18,2), total)
                 .query(`
                     SELECT TOP 1 discountPercent
@@ -174,7 +226,7 @@ class CartController {
                 `);
 
             let discountPercent = 0;
-            if(discountResult.recordset.length > 0){
+            if (discountResult.recordset.length > 0) {
                 discountPercent = discountResult.recordset[0].discountPercent;
             }
 
@@ -182,21 +234,23 @@ class CartController {
             const finalTotal = total - discountAmount;
 
             let itemTotal = items.find(i => i.cartItemId == cartItemId);
+
             res.json({
                 success: true,
-                itemTotalFormatted: itemTotal ? new Intl.NumberFormat('vi-VN', {style:'currency', currency:'VND'}).format(itemTotal.price * itemTotal.quantity) : '0 ₫',
-                totalFormatted: new Intl.NumberFormat('vi-VN', {style:'currency', currency:'VND'}).format(total),
+                itemTotalFormatted: itemTotal ? formatPrice(itemTotal.price * itemTotal.quantity) : "0 ₫",
+                totalFormatted: formatPrice(total),
                 discountPercent,
-                discountAmountFormatted: new Intl.NumberFormat('vi-VN', {style:'currency', currency:'VND'}).format(discountAmount),
-                finalTotalFormatted: new Intl.NumberFormat('vi-VN', {style:'currency', currency:'VND'}).format(finalTotal),
+                discountAmountFormatted: formatPrice(discountAmount),
+                finalTotalFormatted: formatPrice(finalTotal),
                 removeRow: quantity <= 0
             });
 
-        } catch(err){
+        } catch (err) {
             console.error(err);
             res.json({success:false});
         }
     }
+
 
     // DELETE /carts/remove/:id
     async removeItem(req, res){

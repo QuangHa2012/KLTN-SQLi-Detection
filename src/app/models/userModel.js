@@ -176,13 +176,13 @@ class UserModel {
                 SELECT @@ROWCOUNT AS affected;
             `);
 
-        // rowsAffected kiểm tra xem có update được hàng không
+        // Lấy số dòng bị ảnh hưởng
         const affected = result.recordset[0]?.affected || 0;
         if (affected === 0) {
             throw new Error('Không thể tạo token (tài khoản không phải local)');
         }
 
-        console.log(' Token tạo:', token, ' / rowsAffected:', rowsAffected);
+        console.log(' Token tạo:', token, ' / affected:', affected);
 
         return token;
     }

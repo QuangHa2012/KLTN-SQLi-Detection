@@ -157,6 +157,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     body: JSON.stringify({ quantity })
                 });
                 const data = await res.json();
+
+                if (!data.success && data.error) {
+                    alert(data.error);
+                    this.value = data.maxStock; // reset lại
+                    return;
+                }
+
                 if(data.success){
                     updateCartUI(data, cartItemId);
                     checkCartEmpty();

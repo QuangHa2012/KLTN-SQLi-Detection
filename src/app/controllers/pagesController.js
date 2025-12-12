@@ -38,10 +38,10 @@ class PagesController {
         });
     }
 
-    // Điều khoản dịch vụ
-    termsOfService(req, res) {
-        res.render('pages/termsOfService', {
-            title: "Điều khoản dịch vụ"
+    // Chính sách giảm giá
+    privacyDiscount(req, res) {
+        res.render('pages/privacyDiscount', {
+            title: "Chính sách giảm giá"
         });
     }
 

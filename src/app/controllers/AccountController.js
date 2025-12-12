@@ -174,7 +174,7 @@ class AccountController {
 
             const token = await userModel.createResetToken(email);
             console.log(" Token được tạo:", token);
-            const resetLink = `http://localhost:3000/accounts/reset?token=${token}`;
+            const resetLink = `https://tardiest-vestibular-cathrine.ngrok-free.dev/accounts/reset?token=${token}`;
 
             const transporter = nodemailer.createTransport({
                 service: 'gmail',
