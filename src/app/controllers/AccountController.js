@@ -54,6 +54,11 @@ class AccountController {
     // POST /accounts/register
     async register(req, res) {
         const { username, email, password, confirmPassword } = req.body;
+
+        if (!email) {
+            return res.render('accounts/register', { error: 'Vui lòng nhập email!' });
+}
+
         if (password !== confirmPassword) {
             return res.render('accounts/register', { error: 'Mật khẩu không khớp!' });
         }

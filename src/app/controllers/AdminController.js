@@ -58,7 +58,6 @@ class AdminController {
             res.status(500).render("500", { message: "Lỗi server" });
         }
     }
-
     // GET /admin/users/:id
     async deleteUser(req, res) {
         try {

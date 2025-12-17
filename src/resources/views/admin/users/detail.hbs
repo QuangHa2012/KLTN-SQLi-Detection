@@ -50,7 +50,26 @@
         <div class="card mb-3">
             <div class="card-header">
                 <strong>Đơn #{{this.id}}</strong> - Tổng: {{formatPrice this.total}} - 
-                Trạng thái: <span class="badge badge-info">{{orderStatus this.status}}</span> - 
+                Trạng thái: <td>
+                {{#if (eq this.status "paid")}}
+                    <span class="badge badge-success">Đã thanh toán</span>
+
+                {{else if (eq this.status "pending")}}
+                    <span class="badge badge-warning">Chờ thanh toán</span>
+
+                {{else if (eq this.status "shipping")}}
+                    <span class="badge badge-info">Đang giao</span>
+
+                {{else if (eq this.status "completed")}}
+                    <span class="badge badge-primary">Hoàn tất</span>
+
+                {{else if (eq this.status "cancelled")}}
+                    <span class="badge badge-secondary">Đã hủy</span>
+
+                {{else}}
+                    <span class="badge badge-danger">Thanh toán thất bại</span>
+                {{/if}}
+                </td> - 
                 Ngày đặt: {{formatDate this.createdAt}}
             </div>
             <div class="card-body">
@@ -222,5 +241,12 @@
         padding: 6px 8px;
     }
 }
+
+.badge-success { background-color: #28a745 !important; }
+.badge-warning { background-color: #ffc107 !important; color: #222; }
+.badge-danger { background-color: #dc3545 !important; }
+.badge-secondary { background-color: #6c757d !important; }
+.badge-info { background-color: #54ce8b !important; }
+.badge-primary { background-color: #0d6efd !important; }
 
 </style>

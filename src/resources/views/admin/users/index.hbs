@@ -20,7 +20,7 @@
             <tr>
                 <th>ID</th>
                 <th>Tên đăng nhập</th>
-                <th>email</th>
+                <th>Email</th>
                 <th>Quyền</th>
                 <th>Chi tiết</th>
                 <th>Xóa tài khoản</th>
@@ -59,29 +59,42 @@
         <ul class="pagination justify-content-center">
             {{#if (gt currentPage 1)}}
             <li class="page-item">
-                <a class="page-link" href="/admin/users?page={{subtract currentPage 1}}">Previous</a>
+                <a class="page-link" href="/admin/users?page={{sub currentPage 1}}
+                    {{#if query.username}}&username={{query.username}}{{/if}}
+                    {{#if query.role}}&role={{query.role}}{{/if}}">
+                    Previous
+                </a>
             </li>
             {{/if}}
 
             {{#each (range 1 totalPages)}}
             <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
-                <a class="page-link" href="/admin/users?page={{this}}">{{this}}</a>
+                <a class="page-link" href="/admin/users?page={{this}}
+                    {{#if ../query.username}}&username={{../query.username}}{{/if}}
+                    {{#if ../query.role}}&role={{../query.role}}{{/if}}">
+                    {{this}}
+                </a>
             </li>
             {{/each}}
 
             {{#if (lt currentPage totalPages)}}
             <li class="page-item">
-                <a class="page-link" href="/admin/users?page={{add currentPage 1}}">Next</a>
+                <a class="page-link" href="/admin/users?page={{add currentPage 1}}
+                    {{#if query.username}}&username={{query.username}}{{/if}}
+                    {{#if query.role}}&role={{query.role}}{{/if}}">
+                    Next
+                </a>
             </li>
             {{/if}}
         </ul>
     </nav>
 </div>
 
+
+
 <style>
 /* --- Tổng thể container --- */
 .container.admin-users {
-    /*background-color: #fff;*/
     padding: 25px 30px;
     border-radius: 10px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.05);
@@ -112,6 +125,7 @@
     border: 1px solid #ccc;
     padding: 6px 10px;
     transition: all 0.2s;
+    min-width: 120px;
 }
 
 .admin-users form.form-inline input.form-control:focus,
@@ -137,6 +151,7 @@
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 0 8px rgba(0,0,0,0.03);
+    font-size: 14px;
 }
 
 .admin-users thead tr {
@@ -174,6 +189,52 @@
     gap: 5px;
 }
 
+/* Phân trang 
+.admin-users .pagination {
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
 
+.admin-users .pagination .page-item .page-link {
+    border-radius: 6px;
+    margin: 2px;
+    min-width: 36px;
+    text-align: center;
+}
+*/
+/* --- Responsive --- */
+
+/* Tablet */
+@media (max-width: 992px) {
+    .admin-users form.form-inline {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .admin-users form.form-inline input.form-control,
+    .admin-users form.form-inline select.form-control,
+    .admin-users form.form-inline button {
+        width: 100%;
+    }
+    .admin-users table th, .admin-users table td {
+        padding: 8px 10px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 576px) {
+    .admin-users table {
+        font-size: 12px;
+    }
+    .admin-users table th, .admin-users table td {
+        padding: 6px 8px;
+    }
+    .admin-users .btn-sm {
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+    .admin-users form.form-inline {
+        gap: 5px;
+    }
+}
 
 </style>
