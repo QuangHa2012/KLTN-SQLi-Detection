@@ -1,183 +1,232 @@
 <div class="container mt-5 user-orders">
   <h2>Đơn hàng của bạn</h2>
+
   {{#if orders.length}}
-  <table class="table table-bordered mt-3">
-    <thead>
-      <tr>
-        <th>Mã đơn</th>
-        <th>Tổng tiền</th>
-        <th>Trạng thái</th>
-        <th>Ngày đặt</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each orders}}
-      <tr>
-        <td>#{{this.id}}</td>
-        <td>{{this.total}} VND</td>
-        <td>
+  <!-- TABLE DESKTOP / TABLET -->
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-bordered mt-3">
+      <thead>
+        <tr>
+          <th>Mã đơn</th>
+          <th>Tổng tiền</th>
+          <th>Trạng thái</th>
+          <th>Ngày đặt</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each orders}}
+        <tr>
+          <td>#{{this.id}}</td>
+          <td>{{this.total}} VND</td>
+          <td>
+            {{#if (eq this.status "paid")}}
+              <span class="badge badge-success">Đã thanh toán</span>
+            {{else if (eq this.status "pending")}}
+              <span class="badge badge-warning">Chưa thanh toán</span>
+            {{else if (eq this.status "failed")}}
+              <span class="badge badge-danger">Thanh toán thất bại</span>
+            {{else if (eq this.status "shipping")}}
+              <span class="badge badge-info">Đang giao</span>
+            {{else if (eq this.status "completed")}}
+              <span class="badge badge-primary">Hoàn tất</span>
+            {{else}}
+              <span class="badge badge-secondary">Đã hủy</span>
+            {{/if}}
+          </td>
+          <td>{{formatDate this.createdAt}}</td>
+          <td>
+            <a href="/orders/{{this.id}}" class="btn btn-primary btn-sm">Xem</a>
+            {{#if (eq this.status "pending")}}
+            <form action="/orders/{{this.id}}/cancel" method="POST" style="display:inline-block">
+              <button type="submit" class="btn btn-danger btn-sm">Hủy đơn</button>
+            </form>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MOBILE VIEW: CARD -->
+  <div class="d-block d-md-none">
+    {{#each orders}}
+    <div class="order-card">
+      <div class="order-row">
+        <span>Mã đơn</span>
+        <strong>#{{this.id}}</strong>
+      </div>
+      <div class="order-row">
+        <span>Ngày đặt</span>
+        <strong>{{formatDate this.createdAt}}</strong>
+      </div>
+      <div class="order-row">
+        <span>Tổng tiền</span>
+        <strong>{{this.total}} VND</strong>
+      </div>
+      <div class="order-row">
+        <span>Trạng thái</span>
+        <div>
           {{#if (eq this.status "paid")}}
             <span class="badge badge-success">Đã thanh toán</span>
-
           {{else if (eq this.status "pending")}}
             <span class="badge badge-warning">Chưa thanh toán</span>
-
-          {{else if (eq this.status "failed")}}
-            <span class="badge badge-danger">Thanh toán thất bại</span>
-
           {{else if (eq this.status "shipping")}}
             <span class="badge badge-info">Đang giao</span>
-
           {{else if (eq this.status "completed")}}
             <span class="badge badge-primary">Hoàn tất</span>
-
           {{else}}
-            <span class="badge badge-secondary">Đã hủy</span>
+            <span class="badge badge-danger">Đã hủy</span>
           {{/if}}
-        </td>
-        <td>{{formatDate this.createdAt}}</td>
-        <td>
-          <a href="/orders/{{this.id}}" class="btn btn-primary btn-sm">Xem</a>
-          {{#if (eq this.status "pending")}}
-          <form action="/orders/{{this.id}}/cancel" method="POST" style="display:inline-block">
-            <button type="submit" class="btn btn-danger btn-sm">Hủy đơn</button>
-          </form>
-          {{/if}}
-        </td>
-      </tr>
-      {{/each}}
-    </tbody>
-  </table>
+        </div>
+      </div>
+      <div class="order-actions">
+        <a href="/orders/{{this.id}}" class="btn btn-primary btn-sm">Xem</a>
+        {{#if (eq this.status "pending")}}
+        <form action="/orders/{{this.id}}/cancel" method="POST">
+          <button type="submit" class="btn btn-danger btn-sm">Hủy đơn</button>
+        </form>
+        {{/if}}
+      </div>
+    </div>
+    {{/each}}
+  </div>
 
   <!-- PHÂN TRANG -->
-  <nav aria-label="Page navigation">
+  <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
-      
-      {{!-- Nút trước --}}
       {{#if (gt currentPage 1)}}
       <li class="page-item">
         <a class="page-link" href="/orders?page={{sub currentPage 1}}">Trước</a>
       </li>
       {{/if}}
 
-      {{!-- Các số trang --}}
       {{#each (range 1 totalPages)}}
-        <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
-          <a class="page-link" href="/orders?page={{this}}">{{this}}</a>
-        </li>
+      <li class="page-item {{#if (eq this ../currentPage)}}active{{/if}}">
+        <a class="page-link" href="/orders?page={{this}}">{{this}}</a>
+      </li>
       {{/each}}
 
-      {{!-- Nút sau --}}
       {{#if (lt currentPage totalPages)}}
       <li class="page-item">
         <a class="page-link" href="/orders?page={{add currentPage 1}}">Sau</a>
       </li>
       {{/if}}
-
     </ul>
   </nav>
-
 
   {{else}}
   <p>Bạn chưa có đơn hàng nào.</p>
   {{/if}}
 </div>
 
-
 <style>
+/* ===== CONTAINER ===== */
 .container.user-orders {
-    background: #fff;
-    border-radius: 10px;
-    padding: 30px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    font-family: "Segoe UI", Roboto, sans-serif;
-    color: #333;
-    margin-top: 40px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  color: #333;
+  margin-top: 40px;
 }
 
-/* Tiêu đề */
 .user-orders h2 {
-    font-weight: 600;
-    color: #222;
-    text-align: center;
-    margin-bottom: 25px;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  margin-bottom: 25px;
 }
 
-/* Bảng đơn hàng */
+/* ===== TABLE ===== */
 .user-orders .table {
-    border-radius: 10px;
-    overflow: hidden;
-    background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #fff;
 }
-
 .user-orders .table th {
-    background-color: #f8f9fa;
-    text-align: center;
-    font-weight: 600;
-    color: #333;
-    vertical-align: middle;
+  background-color: #f8f9fa;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  vertical-align: middle;
 }
-
 .user-orders .table td {
-    text-align: center;
-    vertical-align: middle;
-    font-size: 15px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 15px;
 }
 
+/* ===== BADGE ===== */
 .badge {
-    padding: 6px 10px;
-    border-radius: 8px;
-    font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
 }
+.badge-success {background-color: #28a745 !important;}
+.badge-warning {background-color: #ffc107 !important; color:#222;}
+.badge-danger {background-color: #dc3545 !important;}
+.badge-info {background-color: #17a2b8 !important;}
+.badge-primary {background-color: #007bff !important;}
+.badge-secondary {background-color: #6c757d !important;}
 
-.badge-success {
-    background-color: #28a745 !important;
-}
-
-.badge-warning {
-    background-color: #ffc107 !important;
-    color: #222;
-}
-
-.badge-danger {
-    background-color: #dc3545 !important;
-}
-
-.badge-secondary {
-    background-color: #6c757d !important;
-}
-
-/* Nút xem & hủy */
+/* ===== BUTTON ===== */
 .user-orders .btn-sm {
-    border-radius: 6px;
-    padding: 4px 10px;
-    font-size: 14px;
-    transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 14px;
+  transition: all 0.2s ease;
 }
+.user-orders .btn-primary {background-color: #007bff; border:none;}
+.user-orders .btn-primary:hover {background-color: #0069d9;}
+.user-orders .btn-danger {background-color: #dc3545; border:none;}
+.user-orders .btn-danger:hover {background-color: #c82333;}
 
-.user-orders .btn-primary {
-    background-color: #007bff;
-    border: none;
-}
-
-.user-orders .btn-primary:hover {
-    background-color: #0069d9;
-}
-
-.user-orders .btn-danger {
-    background-color: #dc3545;
-    border: none;
-}
-
-.user-orders .btn-danger:hover {
-    background-color: #c82333;
-}
-
+/* ===== TEXT ===== */
 .user-orders p {
-    text-align: center;
-    color: #666;
-    font-size: 16px;
+  text-align: center;
+  color: #666;
+  font-size: 16px;
 }
 
+.order-row .badge {
+  color: #fff;
+}
+/* ===== MOBILE CARD ===== */
+@media (max-width: 767px) {
+  .order-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+
+  .order-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 14px;
+  }
+
+  .order-row span {color:#666;}
+  .order-row strong {font-weight:600; color:#222;}
+
+  .order-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .order-actions .btn {
+    flex: 1;
+  }
+
+  .pagination .page-link {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+}
 </style>

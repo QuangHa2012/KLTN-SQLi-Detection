@@ -1,6 +1,6 @@
 <div class='admin-user-list-container'>
   <div class='admin-user-list'>
-    <div class='header'>
+    <div class='admin-user-list-header'>
       <h2>💬 Khách đang chat</h2>
     </div>
 
@@ -30,27 +30,148 @@
 </div>
 
 <style>
-  /* Container để cách xa header */ 
-  .admin-user-list-container { 
-    display: flex;
-  justify-content: center; 
-  margin-top: 90px; /* cách header ra xa */ 
-  padding:20px; } /* Khung danh sách */ .admin-user-list { width: 420px; background:
-  #fff; border-radius: 16px; border: 1px solid #ddd; box-shadow: 0 4px 14px
-  rgba(0, 0, 0, 0.05); overflow: hidden; } /* Header */ .admin-user-list .header
-  { background: linear-gradient(45deg, #343a40, #73777d); padding: 18px;
-  text-align: center; } .admin-user-list h2 { color: #fff; margin: 0; } /* Danh
-  sách */ .user-list { margin: 0; padding: 0; list-style: none; } .user-list li
-  a { display: flex; align-items: center; padding: 14px; text-decoration: none;
-  color: #000; border-bottom: 1px solid #eee; transition: 0.2s; position:
-  relative; } .user-list li a:hover { background: #eef5ff; } /* Avatar */
-  .avatar { width: 48px; height: 48px; background: #343a40; color: white;
-  border-radius: 50%; display: flex; align-items: center; justify-content:
-  center; font-weight: bold; margin-right: 12px; } /* Info */ .info .name {
-  font-size: 16px; font-weight: bold; } .info .status { font-size: 13px; color:
-  gray; } .info .status.online { color: #00aa52; } /* Badge tin nhắn */ .badge {
-  position: absolute; right: 20px; background: red; color: white; padding: 3px
-  7px; border-radius: 10px; font-size: 12px; } /* Trạng thái rỗng */ .empty {
-  padding: 20px; text-align: center; color: gray; }
+/* ===== CONTAINER ===== */
+.admin-user-list-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  margin-top: 90px; /* chừa header fixed */
+  box-sizing: border-box;
+}
+
+/* ===== CARD ===== */
+.admin-user-list {
+  width: 100%;
+  max-width: 420px; /* desktop */
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* ===== HEADER ===== */
+.admin-user-list .admin-user-list-header {
+  background: linear-gradient(45deg, #343a40, #73777d);
+  padding: 16px;
+  text-align: center;
+}
+
+.admin-user-list h2 {
+  color: #fff;
+  margin: 0;
+  font-size: 18px;
+}
+
+/* ===== USER LIST ===== */
+.user-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.user-list li a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: #000;
+  border-bottom: 1px solid #eee;
+  position: relative;
+  transition: background 0.2s ease;
+}
+
+.user-list li a:hover {
+  background: #f4f7fb;
+}
+
+/* ===== AVATAR ===== */
+.avatar {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  background: #343a40;
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* ===== INFO ===== */
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* chống văng chữ */
+}
+
+.info .name {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info .status {
+  font-size: 13px;
+  color: #777;
+}
+
+.info .status.online {
+  color: #00aa52;
+}
+
+/* ===== BADGE ===== */
+.badge {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: #e53935;
+  color: #fff;
+  padding: 3px 7px;
+  border-radius: 12px;
+  font-size: 12px;
+  min-width: 20px;
+  text-align: center;
+}
+
+/* ===== EMPTY ===== */
+.empty {
+  padding: 24px;
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 576px) {
+  .admin-user-list-container {
+    padding: 12px;
+    margin-top: 80px;
+  }
+
+  .admin-user-list h2 {
+    font-size: 16px;
+  }
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 13px;
+  }
+
+  .info .name {
+    font-size: 14px;
+  }
+
+  .badge {
+    right: 12px;
+  }
+}
 
 </style>

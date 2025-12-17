@@ -1,213 +1,87 @@
 <div class="container cart-container">
-    <h2>Giỏ hàng của bạn</h2>
+  <h2>Giỏ hàng của bạn</h2>
 
-    <div id="cart-empty" class="alert alert-info" style="display:none;">
-        Giỏ hàng trống. <a href="/products">Mua sắm tại đây.</a>
+  <div id="cart-empty" class="alert alert-info" style="display:none;">
+    Giỏ hàng trống. <a href="/products">Mua sắm tại đây.</a>
+  </div>
+
+  {{#if items.length}}
+  <button id="clear-cart" class="btn btn-warning mb-3">Xóa tất cả</button>
+
+  <!-- DESKTOP TABLE -->
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-striped align-middle">
+      <thead class="table-dark">
+        <tr>
+          <th>Ảnh</th>
+          <th>Sản phẩm</th>
+          <th>Giá</th>
+          <th>Số lượng</th>
+          <th>Tổng</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each items}}
+        <tr data-id="{{this.cartItemId}}">
+          <td><img src="{{this.img}}" class="cart-img"></td>
+          <td>{{this.name}}</td>
+          <td class="price" data-value="{{this.price}}">{{formatPrice this.price}}</td>
+          <td>
+            <input type="number" value="{{this.quantity}}" min="0" class="form-control quantity-input" data-id="{{this.cartItemId}}">
+          </td>
+          <td id="total-{{this.cartItemId}}">{{formatPrice (multiply this.price this.quantity)}}</td>
+          <td>
+            <button class="btn btn-danger btn-sm remove-btn" data-id="{{this.cartItemId}}">Xóa</button>
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- MOBILE CARDS -->
+  <div class="d-block d-md-none">
+    {{#each items}}
+    <div class="cart-card" data-id="{{this.cartItemId}}">
+      <div class="cart-card-row">
+        <img src="{{this.img}}" alt="{{this.name}}">
+        <div class="cart-card-info">
+          <p><strong>{{this.name}}</strong></p>
+          <p>Giá: {{formatPrice this.price}}</p>
+          <p>
+            Số lượng:
+            <input type="number" value="{{this.quantity}}" min="0" class="form-control quantity-input" data-id="{{this.cartItemId}}">
+          </p>
+          <p>Tổng: <span id="total-{{this.cartItemId}}">{{formatPrice (multiply this.price this.quantity)}}</span></p>
+          <button class="btn btn-danger btn-sm remove-btn w-100 mt-2" data-id="{{this.cartItemId}}">Xóa</button>
+        </div>
+      </div>
     </div>
+    {{/each}}
+  </div>
 
-    {{#if items.length}}
-    <button id="clear-cart" class="btn btn-warning mb-3">Xóa tất cả</button>
+  <div id="cart-summary" class="cart-summary mt-3 p-3 border rounded bg-light"
+       data-total="{{total}}" 
+       data-discount="{{discountPercent}}" 
+       data-discount-amount="{{discountAmount}}" 
+       data-final="{{finalTotal}}">
+    <h5>Tổng tạm tính: <span id="cart-total">{{formatPrice total}}</span></h5>
+    <p class="text-success mb-1" id="discount-info">
+      {{#if discountPercent}}
+        Giảm giá: {{discountPercent}}% (-<span id="discount-amount">{{formatPrice discountAmount}}</span>)
+      {{else}}
+        Không có khuyến mãi áp dụng
+      {{/if}}
+    </p>
+    <h4 id="final-total">{{formatPrice finalTotal}}</h4>
 
-    <div class="table-responsive">
-        <table class="table table-striped align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th>Ảnh</th>
-                    <th>Sản phẩm</th>
-                    <th>Giá</th>
-                    <th>Số lượng</th>
-                    <th>Tổng</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                {{#each items}}
-                <tr data-id="{{this.cartItemId}}">
-                    <td><img src="{{this.img}}" class="cart-img"></td>
-                    <td>{{this.name}}</td>
-                    <td class="price" data-value="{{this.price}}">{{formatPrice this.price}}</td>
-                    <td>
-                        <input type="number" value="{{this.quantity}}" min="0" class="form-control quantity-input" data-id="{{this.cartItemId}}">
-                    </td>
-                    <td id="total-{{this.cartItemId}}">{{formatPrice (multiply this.price this.quantity)}}</td>
-                    <td>
-                        <button class="btn btn-danger btn-sm remove-btn" data-id="{{this.cartItemId}}">Xóa</button>
-                    </td>
-                </tr>
-                {{/each}}
-            </tbody>
-        </table>
-    </div>
-
-    <div id="cart-summary" class="cart-summary mt-3 p-3 border rounded bg-light"
-         data-total="{{total}}" 
-         data-discount="{{discountPercent}}" 
-         data-discount-amount="{{discountAmount}}" 
-         data-final="{{finalTotal}}">
-        <h5>Tổng tạm tính: <span id="cart-total">{{formatPrice total}}</span></h5>
-        <p class="text-success mb-1" id="discount-info">
-            {{#if discountPercent}}
-                Giảm giá: {{discountPercent}}% (-<span id="discount-amount">{{formatPrice discountAmount}}</span>)
-            {{else}}
-                Không có khuyến mãi áp dụng
-            {{/if}}
-        </p>
-        <h4 id="final-total">{{formatPrice finalTotal}}</h4>
-
-        <form action="/payment/momo" method="POST" class="mt-2">
-            <button type="submit" class="btn btn-success btn-lg">Thanh toán</button>
-        </form>
-    </div>
-    {{/if}}
+    <form action="/payment/momo" method="POST" class="mt-2">
+      <button type="submit" class="btn btn-success btn-lg w-100">Thanh toán</button>
+    </form>
+  </div>
+  {{/if}}
 </div>
-
-
-
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    function debounce(fn, delay){
-        let timer;
-        return function(...args){
-            clearTimeout(timer);
-            timer = setTimeout(()=> fn.apply(this, args), delay);
-        }
-    }
-
-    function formatPrice(value){
-        return Number(value).toLocaleString('vi-VN', {style:'currency', currency:'VND'});
-    }
-
-    function updateCartUI(data, cartItemId){
-        if(cartItemId){
-            if(data.removeRow){
-                const row = document.querySelector(`tr[data-id="${cartItemId}"]`);
-                if(row) row.remove();
-            } else {
-                const totalCell = document.getElementById(`total-${cartItemId}`);
-                if(totalCell) totalCell.textContent = data.itemTotalFormatted;
-            }
-        }
-
-        document.getElementById('cart-total').textContent = data.totalFormatted;
-
-        const discountInfo = document.getElementById('discount-info');
-        if(data.discountPercent > 0){
-            discountInfo.innerHTML = `Giảm giá: ${data.discountPercent}% (-<span id="discount-amount">${data.discountAmountFormatted}</span>)`;
-        } else {
-            discountInfo.textContent = 'Không có khuyến mãi áp dụng';
-        }
-
-        document.getElementById('final-total').textContent = data.finalTotalFormatted;
-    }
-
-    function checkCartEmpty() {
-        const tbody = document.querySelector('tbody');
-        const emptyMsg = document.getElementById('cart-empty');
-        const table = document.querySelector('table');
-        const clearBtn = document.getElementById('clear-cart');
-        const summary = document.getElementById('cart-summary');
-
-        // Kiểm tra giỏ hàng trống
-        const isEmpty = !tbody || tbody.querySelectorAll('tr').length === 0;
-
-        if (isEmpty) {
-            emptyMsg.style.display = 'block';
-            if (table) table.style.display = 'none';
-            if (clearBtn) clearBtn.style.display = 'none';
-
-            // ẨN phần thanh toán (nút Thanh toán nằm trong đây)
-            if (summary) summary.style.display = 'none';
-
-        } else {
-            emptyMsg.style.display = 'none';
-            if (table) table.style.display = 'table';
-            if (clearBtn) clearBtn.style.display = 'inline-block';
-
-            // HIỆN phần thanh toán khi có hàng
-            if (summary) summary.style.display = 'block';
-        }
-    }
-
-
-    // Load lần đầu: lấy giá từ data-attributes
-    const summary = document.getElementById('cart-summary');
-    if(summary){
-        updateCartUI({
-            totalFormatted: formatPrice(Number(summary.dataset.total)),
-            discountPercent: Number(summary.dataset.discount),
-            discountAmountFormatted: formatPrice(Number(summary.dataset.discountAmount)),
-            finalTotalFormatted: formatPrice(Number(summary.dataset.final))
-        }, null);
-    }
-
-    checkCartEmpty();
-
-    // Update số lượng
-    document.querySelectorAll('.quantity-input').forEach(input => {
-        input.addEventListener('input', debounce(async function() {
-            const cartItemId = this.dataset.id;
-            const quantity = this.value;
-
-            try {
-                const res = await fetch(`/carts/update/${cartItemId}`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ quantity })
-                });
-                const data = await res.json();
-
-                if (!data.success && data.error) {
-                    alert(data.error);
-                    this.value = data.maxStock; // reset lại
-                    return;
-                }
-
-                if(data.success){
-                    updateCartUI(data, cartItemId);
-                    checkCartEmpty();
-                }
-            } catch(err){ console.error(err); }
-        }, 300));
-    });
-
-    // Xóa 1 sản phẩm
-    document.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', async function() {
-            const cartItemId = this.dataset.id;
-            try {
-                const res = await fetch(`/carts/remove/${cartItemId}`, { method: 'POST' });
-                const data = await res.json();
-                if(data.success){
-                    const row = document.querySelector(`tr[data-id="${cartItemId}"]`);
-                    if(row) row.remove();
-                    updateCartUI(data, null);
-                    checkCartEmpty();
-                }
-            } catch(err){ console.error(err); }
-        });
-    });
-
-    // Xóa tất cả
-    const clearBtn = document.getElementById('clear-cart');
-    if(clearBtn){
-        clearBtn.addEventListener('click', async function(){
-            try {
-                const res = await fetch(`/carts/clear`, { method: 'POST' });
-                const data = await res.json();
-                if(data.success){
-                    document.querySelectorAll('tbody tr').forEach(tr => tr.remove());
-                    updateCartUI(data, null);
-                    checkCartEmpty();
-                }
-            } catch(err){ console.error(err); }
-        });
-    }
-
-});
-</script>
-
 
 <style>
 .cart-container {
@@ -226,12 +100,39 @@ document.addEventListener('DOMContentLoaded', function() {
     max-width: 70px;
 }
 
+/* Cart Summary */
 .cart-summary h4, .cart-summary h5 {
     margin: 0.5rem 0;
 }
 
 .table-responsive {
     overflow-x: auto;
+}
+
+/* Mobile card */
+.cart-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.cart-card-row {
+    display: flex;
+    gap: 12px;
+}
+
+.cart-card-row img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.cart-card-info p {
+    margin: 4px 0;
+    font-size: 14px;
 }
 
 @media (max-width: 768px) {
@@ -250,5 +151,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 }
 </style>
-
-
